@@ -5,141 +5,30 @@ import {
   ScrollView,
   StyleSheet,
   SafeAreaView,
-  Dimensions,
   ActivityIndicator,
-  RefreshControl,
   TouchableOpacity,
+  RefreshControl,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../../contexts/AuthContext";
-import apiService from "../../services/api";
-
-const { width } = Dimensions.get("window");
-
-type DashboardStats = {
-  cpdPoints: number;
-  requiredPoints: number;
-  completedModules: number;
-  upcomingEvents: number;
-  balance: number;
-  pendingTransactions: number;
-  unreadNotifications: number;
-  activePolls: number;
-};
-
-type NotificationItem = {
-  id: string;
-  title: string;
-  message: string;
-  type: string;
-  createdAt: string;
-};
-
-const mockNotifications: NotificationItem[] = [
-  {
-    id: "1",
-    title: "CPD Seminar Tomorrow",
-    message: "Digital Transformation in Accounting",
-    type: "cpd",
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    title: "Payment Reminder",
-    message: "Annual membership due in 5 days",
-    type: "financial",
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "3",
-    title: "New Survey Available",
-    message: "Professional Development Needs Assessment",
-    type: "survey",
-    createdAt: new Date().toISOString(),
-  },
-];
 
 interface Props {
   navigation?: any;
   onLogout?: () => void;
 }
 
-const DashboardScreen: React.FC<Props> = ({ navigation, onLogout }) => {
+const DashboardScreenSimple: React.FC<Props> = ({ navigation, onLogout }) => {
   const { user } = useAuth();
-  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(
-    null
-  );
-  const [notifications, setNotifications] =
-    useState<NotificationItem[]>(mockNotifications);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-
-  useEffect(() => {
-    loadDashboardData();
-  }, []);
-
-  const loadDashboardData = async () => {
-    try {
-      setIsLoading(true);
-
-      // Try to load real data from API
-      try {
-        const [statsResponse, notificationsResponse] = await Promise.all([
-          apiService.getDashboardStats(),
-          apiService.getNotifications({ limit: 5 }),
-        ]);
-
-        if (statsResponse.success && statsResponse.data) {
-          setDashboardStats(statsResponse.data.stats);
-        }
-
-        if (notificationsResponse.success && notificationsResponse.data) {
-          setNotifications(
-            notificationsResponse.data.data || mockNotifications
-          );
-        }
-      } catch (apiError) {
-        console.log("API not available, using mock data");
-        // Use mock data if API fails
-        setNotifications(mockNotifications);
-        setDashboardStats({
-          cpdPoints: user?.cpdPoints || 25,
-          requiredPoints: 40,
-          completedModules: 5,
-          upcomingEvents: 3,
-          balance: user?.balance || 50000,
-          pendingTransactions: 1,
-          unreadNotifications: 7,
-          activePolls: 2,
-        });
-      }
-    } catch (error) {
-      console.error("Error loading dashboard data:", error);
-      setNotifications(mockNotifications);
-    } finally {
-      setIsLoading(false);
-      setRefreshing(false);
-    }
-  };
 
   const onRefresh = () => {
     setRefreshing(true);
-    loadDashboardData();
+    // Simulate refresh
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
   };
-
-  if (isLoading) {
-    return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>ICAN Dashboard</Text>
-        </View>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#3182ce" />
-          <Text style={styles.loadingText}>Loading dashboard...</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
 
   if (!user) {
     return (
@@ -149,10 +38,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation, onLogout }) => {
         </View>
         <View style={styles.loadingContainer}>
           <Text style={styles.errorText}>Unable to load user data</Text>
-          <TouchableOpacity
-            style={styles.retryButton}
-            onPress={loadDashboardData}
-          >
+          <TouchableOpacity style={styles.retryButton} onPress={() => {}}>
             <Text style={styles.retryText}>Retry</Text>
           </TouchableOpacity>
         </View>
@@ -162,8 +48,8 @@ const DashboardScreen: React.FC<Props> = ({ navigation, onLogout }) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView
-        style={styles.container}
+      <ScrollView 
+        style={styles.container} 
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -200,39 +86,18 @@ const DashboardScreen: React.FC<Props> = ({ navigation, onLogout }) => {
           <View style={styles.statCard}>
             <Ionicons name="wallet" size={24} color="#3182ce" />
             <Text style={styles.statValue}>
-              ₦
-              {(dashboardStats?.balance || user?.balance || 0).toLocaleString()}
+              ₦{(user?.balance || 50000).toLocaleString()}
             </Text>
             <Text style={styles.statLabel}>Account Balance</Text>
           </View>
           <View style={styles.statCard}>
             <Ionicons name="school" size={24} color="#38a169" />
             <Text style={styles.statValue}>
-              {dashboardStats?.cpdPoints || user?.cpdPoints || 0}
+              {user?.cpdPoints || 25}
             </Text>
             <Text style={styles.statLabel}>CPD Points</Text>
           </View>
         </View>
-
-        {/* Additional Stats */}
-        {dashboardStats && (
-          <View style={styles.statsContainer}>
-            <View style={styles.statCard}>
-              <Ionicons name="calendar" size={24} color="#d69e2e" />
-              <Text style={styles.statValue}>
-                {dashboardStats.upcomingEvents}
-              </Text>
-              <Text style={styles.statLabel}>Upcoming Events</Text>
-            </View>
-            <View style={styles.statCard}>
-              <Ionicons name="notifications" size={24} color="#9f7aea" />
-              <Text style={styles.statValue}>
-                {dashboardStats.unreadNotifications}
-              </Text>
-              <Text style={styles.statLabel}>Notifications</Text>
-            </View>
-          </View>
-        )}
 
         {/* Quick Actions */}
         <View style={styles.section}>
@@ -269,44 +134,32 @@ const DashboardScreen: React.FC<Props> = ({ navigation, onLogout }) => {
           </View>
         </View>
 
-        {/* Recent Notifications */}
+        {/* Recent Updates */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Recent Updates</Text>
-          {notifications.slice(0, 3).map((notification) => (
-            <View key={notification.id} style={styles.notificationCard}>
-              <View style={styles.notificationIcon}>
-                <Ionicons
-                  name={
-                    notification.type === "cpd"
-                      ? "school"
-                      : notification.type === "financial"
-                      ? "card"
-                      : "checkbox"
-                  }
-                  size={20}
-                  color="#3182ce"
-                />
-              </View>
-              <View style={styles.notificationContent}>
-                <Text style={styles.notificationTitle}>
-                  {notification.title}
-                </Text>
-                <Text style={styles.notificationMessage}>
-                  {notification.message}
-                </Text>
-                <Text style={styles.notificationTime}>
-                  {new Date(notification.createdAt).toLocaleDateString()}
-                </Text>
-              </View>
+          <View style={styles.notificationCard}>
+            <View style={styles.notificationIcon}>
+              <Ionicons name="school" size={20} color="#3182ce" />
             </View>
-          ))}
+            <View style={styles.notificationContent}>
+              <Text style={styles.notificationTitle}>Welcome to ICAN Portal</Text>
+              <Text style={styles.notificationMessage}>
+                Your professional development journey starts here
+              </Text>
+              <Text style={styles.notificationTime}>Today</Text>
+            </View>
+          </View>
+        </View>
 
-          {notifications.length === 0 && (
-            <View style={styles.emptyState}>
-              <Ionicons name="notifications-outline" size={48} color="#ccc" />
-              <Text style={styles.emptyText}>No recent notifications</Text>
-            </View>
-          )}
+        {/* Logout Button */}
+        <View style={styles.section}>
+          <TouchableOpacity
+            style={styles.logoutButton}
+            onPress={onLogout}
+          >
+            <Ionicons name="log-out-outline" size={20} color="white" />
+            <Text style={styles.logoutText}>Logout</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -427,7 +280,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   actionCard: {
-    width: (width - 60) / 2,
+    width: "48%",
     backgroundColor: "white",
     padding: 20,
     borderRadius: 15,
@@ -491,11 +344,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
   },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: "#666",
-  },
   errorText: {
     fontSize: 16,
     color: "#e53e3e",
@@ -513,15 +361,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
-  emptyState: {
+  logoutButton: {
+    backgroundColor: "#e53e3e",
+    flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 40,
+    justifyContent: "center",
+    paddingVertical: 15,
+    borderRadius: 10,
+    marginTop: 20,
   },
-  emptyText: {
+  logoutText: {
+    color: "white",
     fontSize: 16,
-    color: "#999",
-    marginTop: 10,
+    fontWeight: "600",
+    marginLeft: 8,
   },
 });
 
-export default DashboardScreen;
+export default DashboardScreenSimple;

@@ -1218,6 +1218,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Team**:
   - [Daniel Dohou](https://dohoudanielfavour.vercel.app)
   - [Joshua Origiosa](https://github.com/Uni-Jay/)
+  - [Oluwakorede Atansuyi](https://github.com/koatansuyi)
 - **Project Repository**: [GitHub Repository](https://github.com/Uni-Jay/Ican-frontend/)
 - **Live Demo**: [https://team1-ican-eduhack.vercel.app](https://team1-ican-eduhack.vercel.app)
 

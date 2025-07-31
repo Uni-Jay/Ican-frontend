@@ -1,20 +1,26 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { StatusBar, Platform } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import MainNavigator from './src/navigations/MainNavigator';
+import AuthNavigator from './src/navigations/AuthNavigator'; // your login/signup navigator
 
-export default function App() {
+const App = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="#1a365d"
+        translucent={Platform.OS === 'android'}
+      />
+      {!isAuthenticated ? (
+        <AuthNavigator onLogin={() => setIsAuthenticated(true)} />
+      ) : (
+        <MainNavigator onLogout={() => setIsAuthenticated(false)} />
+      )}
+    </NavigationContainer>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;

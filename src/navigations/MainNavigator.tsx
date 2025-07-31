@@ -1,17 +1,18 @@
-import React, { FC } from 'react';
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import { Ionicons } from '@expo/vector-icons';
+import React, { FC } from "react";
+import { createDrawerNavigator } from "@react-navigation/drawer";
+import { Ionicons } from "@expo/vector-icons";
 
-import FinancialScreen from '../screens/main/FinancialScreen';
-import CPDScreen from '../screens/main/CPDScreen';
-import EventsScreen from '../screens/main/EventsScreen';
-import ChatScreen from '../screens/main/ChatScreen';
-import VotingSurveysScreen from '../screens/main/Voting';
-import ProfileSecurityScreen from '../screens/main/ProfileSecurityScreen';
+import FinancialScreen from "../screens/main/FinancialScreen";
+import CPDScreen from "../screens/main/CPDScreen";
+import EventsScreen from "../screens/main/EventsScreen";
+import ChatScreen from "../screens/main/ChatScreen";
+import VotingSurveysScreen from "../screens/main/Voting";
+import ProfileSecurityScreen from "../screens/main/ProfileSecurityScreen";
 
-import CustomDrawer from '../components/CustomDrawer';
-import DashboardTabs from './DashboardTabs';
-import CommunicationScreen from '../screens/main/CommunicationScreen';
+import CustomDrawer from "../components/CustomDrawer";
+import DashboardTabs from "./DashboardTabs";
+import CommunicationScreen from "../screens/main/CommunicationScreen";
+import { useAuth } from "../contexts/AuthContext";
 
 export type MainDrawerParamList = {
   dashboard: undefined;
@@ -24,29 +25,25 @@ export type MainDrawerParamList = {
   communication: undefined;
 };
 
-interface MainNavigatorProps {
-  onLogout: () => void;
-}
-
 const Drawer = createDrawerNavigator<MainDrawerParamList>();
 
-const MainNavigator: FC<MainNavigatorProps> = ({ onLogout }) => {
+const MainNavigator: FC = () => {
+  const { logout } = useAuth();
   return (
     <Drawer.Navigator
       initialRouteName="dashboard"
-      drawerContent={(props) => <CustomDrawer {...props} onLogout={onLogout} />}
+      drawerContent={(props) => <CustomDrawer {...props} onLogout={logout} />}
       screenOptions={({ navigation }) => ({
-    headerShown: true,  // Show header for default hamburger button
-    headerLeft: () => (
-      <Ionicons
-        name="menu"
-        size={24}
-        style={{ marginLeft: 15 }}
-        onPress={() => navigation.toggleDrawer()}
-      />
-    ),
-  })}
-
+        headerShown: true, // Show header for default hamburger button
+        headerLeft: () => (
+          <Ionicons
+            name="menu"
+            size={24}
+            style={{ marginLeft: 15 }}
+            onPress={() => navigation.toggleDrawer()}
+          />
+        ),
+      })}
     >
       {/* Dashboard uses render function to pass onLogout */}
       <Drawer.Screen
@@ -55,23 +52,23 @@ const MainNavigator: FC<MainNavigatorProps> = ({ onLogout }) => {
           drawerIcon: ({ color, size }) => (
             <Ionicons name="home-outline" size={size} color={color} />
           ),
-          title: 'Dashboard',
+          title: "Dashboard",
         }}
       >
-        {(props) => <DashboardTabs {...props} onLogout={onLogout} />}
+        {(props) => <DashboardTabs {...props} onLogout={logout} />}
       </Drawer.Screen>
 
       {/* Other screens */}
-        <Drawer.Screen
+      <Drawer.Screen
         name="financial"
         options={{
           drawerIcon: ({ color, size }) => (
             <Ionicons name="card-outline" size={size} color={color} />
           ),
-          title: 'Financial',
+          title: "Financial",
         }}
       >
-        {(props) => <FinancialScreen {...props} onLogout={onLogout} />}
+        {(props) => <FinancialScreen {...props} onLogout={logout} />}
       </Drawer.Screen>
 
       <Drawer.Screen
@@ -80,10 +77,11 @@ const MainNavigator: FC<MainNavigatorProps> = ({ onLogout }) => {
           drawerIcon: ({ color, size }) => (
             <Ionicons name="school-outline" size={size} color={color} />
           ),
-          title: 'CPD',
-        }}>
-        {(props) => <CPDScreen {...props} onLogout={onLogout} />}
-        </Drawer.Screen>
+          title: "CPD",
+        }}
+      >
+        {(props) => <CPDScreen {...props} onLogout={logout} />}
+      </Drawer.Screen>
 
       <Drawer.Screen
         name="events"
@@ -91,21 +89,27 @@ const MainNavigator: FC<MainNavigatorProps> = ({ onLogout }) => {
           drawerIcon: ({ color, size }) => (
             <Ionicons name="calendar-outline" size={size} color={color} />
           ),
-          title: 'Events',
-        }}>
-        {(props) => <EventsScreen {...props} onLogout={onLogout} />}
-        </Drawer.Screen>
+          title: "Events",
+        }}
+      >
+        {(props) => <EventsScreen {...props} onLogout={logout} />}
+      </Drawer.Screen>
 
       <Drawer.Screen
         name="chat"
         options={{
           drawerIcon: ({ color, size }) => (
-            <Ionicons name="chatbox-ellipses-outline" size={size} color={color} />
+            <Ionicons
+              name="chatbox-ellipses-outline"
+              size={size}
+              color={color}
+            />
           ),
-          title: 'Chat',
-        }}>
-        {(props) => <ChatScreen {...props} onLogout={onLogout} />}
-        </Drawer.Screen>
+          title: "Chat",
+        }}
+      >
+        {(props) => <ChatScreen {...props} onLogout={logout} />}
+      </Drawer.Screen>
 
       <Drawer.Screen
         name="voting"
@@ -113,10 +117,11 @@ const MainNavigator: FC<MainNavigatorProps> = ({ onLogout }) => {
           drawerIcon: ({ color, size }) => (
             <Ionicons name="bar-chart-outline" size={size} color={color} />
           ),
-          title: 'Voting & Surveys',
-        }}>
-        {(props) => <VotingSurveysScreen {...props} onLogout={onLogout} />}
-        </Drawer.Screen>
+          title: "Voting & Surveys",
+        }}
+      >
+        {(props) => <VotingSurveysScreen {...props} onLogout={logout} />}
+      </Drawer.Screen>
 
       <Drawer.Screen
         name="profile"
@@ -124,22 +129,26 @@ const MainNavigator: FC<MainNavigatorProps> = ({ onLogout }) => {
           drawerIcon: ({ color, size }) => (
             <Ionicons name="person-circle-outline" size={size} color={color} />
           ),
-          title: 'Profile & Security',
+          title: "Profile & Security",
         }}
       >
-        {(props) => <ProfileSecurityScreen {...props} onLogout={onLogout} />}
+        {(props) => <ProfileSecurityScreen {...props} onLogout={logout} />}
       </Drawer.Screen>
 
       <Drawer.Screen
         name="communication"
         options={{
           drawerIcon: ({ color, size }) => (
-            <Ionicons name="chatbubble-ellipses-outline" size={size} color={color} />
+            <Ionicons
+              name="chatbubble-ellipses-outline"
+              size={size}
+              color={color}
+            />
           ),
-          title: 'Communication',
+          title: "Communication",
         }}
       >
-        {(props) => <CommunicationScreen {...props} onLogout={onLogout} />}
+        {(props) => <CommunicationScreen {...props} onLogout={logout} />}
       </Drawer.Screen>
     </Drawer.Navigator>
   );

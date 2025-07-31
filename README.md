@@ -1,4 +1,4 @@
-# ICAN ExamHack - Frontend Application
+# ICAN EduHack - Frontend Application
 
 <div align="center">
   <img src="https://img.shields.io/badge/React%20Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React Native" />
@@ -37,7 +37,7 @@
 
 ## 🎯 Overview
 
-The ICAN ExamHack Frontend is a comprehensive React Native application built with Expo, designed to serve as the primary interface for ICAN members. This application provides a modern, intuitive, and feature-rich platform for professional development, financial management, event participation, and community engagement.
+The ICAN EduHack Frontend is a comprehensive React Native application built with Expo, designed to serve as the primary interface for ICAN members. This application provides a modern, intuitive, and feature-rich platform for professional development, financial management, event participation, and community engagement.
 
 ### 🌟 Key Highlights
 

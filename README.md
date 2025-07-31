@@ -8,7 +8,7 @@
 </div>
 
 <div align="center">
-  <h3>🏆 ICAN Hackathon 2024 - Team 1 Submission</h3>
+  <h3>🏆 ICAN Hackathon 2025 - Team 1 Submission</h3>
   <p><strong>A Modern, Professional Member Portal for the Institute of Chartered Accountants of Nigeria</strong></p>
 </div>
 
@@ -1215,13 +1215,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### **Contact Information**
 
-- **Team Lead**: [Your Name](mailto:your.email@example.com)
-- **Project Repository**: [GitHub Repository](https://github.com/your-org/ican-hackathon)
+- **Team**:
+  - [Daniel Dohou](https://dohoudanielfavour.vercel.app)
+  - [Joshua Origiosa](https://github.com/Uni-Jay/)
+- **Project Repository**: [GitHub Repository](https://github.com/Uni-Jay/Ican-frontend/)
 - **Live Demo**: [https://team1-ican-eduhack.vercel.app](https://team1-ican-eduhack.vercel.app)
 
 ---
 
 <div align="center">
-  <p><strong>Built with ❤️ for ICAN Hackathon 2024</strong></p>
-  <p>© 2024 Team 1 - All Rights Reserved</p>
+  <p><strong>Built with ❤️ for ICAN Hackathon 2025</strong></p>
+  <p>© 2025 Team 1 - All Rights Reserved</p>
 </div>

@@ -37,7 +37,7 @@ const mockUser = {
 
 const mockCPDModules: CPDModule[] = [
   {
-    id: 1,
+    id: "1",
     title: "Ethics in Accounting",
     duration: "2 hours",
     progress: 75,

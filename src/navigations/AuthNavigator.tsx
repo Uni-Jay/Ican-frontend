@@ -1,6 +1,6 @@
 import React, { useState, FC } from "react";
-import LoginScreen from "../screens/auths/LoginScreen";
-import RegisterScreen from "../screens/auths/RegisterScreen";
+import LoginScreenSimple from "../screens/auths/LoginScreenSimple";
+import RegisterScreenSimple from "../screens/auths/RegisterScreenSimple";
 import ForgotPasswordScreen from "../screens/auths/ForgotPasswordScreen";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -23,14 +23,14 @@ const AuthNavigator: FC = () => {
     switch (currentScreen) {
       case "login":
         return (
-          <LoginScreen
+          <LoginScreenSimple
             onLogin={handleAuthSuccess}
             navigate={navigateToScreen}
           />
         );
       case "register":
         return (
-          <RegisterScreen
+          <RegisterScreenSimple
             navigate={navigateToScreen}
             onRegister={handleAuthSuccess}
           />
@@ -39,7 +39,7 @@ const AuthNavigator: FC = () => {
         return <ForgotPasswordScreen navigate={navigateToScreen} />;
       default:
         return (
-          <LoginScreen
+          <LoginScreenSimple
             onLogin={handleAuthSuccess}
             navigate={navigateToScreen}
           />

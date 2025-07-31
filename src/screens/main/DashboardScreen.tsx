@@ -3,11 +3,11 @@ import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
   StyleSheet,
   SafeAreaView,
   Dimensions,
   ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Header from "../../components/Header";
@@ -16,6 +16,9 @@ import { MainDrawerParamList } from "../../navigations/MainNavigator";
 import { useAuth } from "../../contexts/AuthContext";
 import apiService from "../../services/api";
 import { DashboardStats, Notification } from "../../types/api";
+import { theme } from "../../styles/theme";
+import Button from "../../components/ui/Button";
+import Card from "../../components/ui/Card";
 
 const { width } = Dimensions.get("window");
 

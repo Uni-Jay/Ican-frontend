@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    
+    <!-- SEO Meta Tags -->
+    <title>ICAN Portal - Professional Development Platform</title>
+    <meta name="description" content="Institute of Chartered Accountants of Nigeria (ICAN) professional development platform for members." />
+    <meta name="keywords" content="ICAN, accounting, professional development, CPD, Nigeria" />
+    <meta name="author" content="ICAN" />
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="ICAN Portal - Professional Development Platform" />
+    <meta property="og:description" content="Access your ICAN member portal for professional development, events, and more." />
+    <meta property="og:type" content="website" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Global Styles for Better Web Experience */
+        * {
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #fafaf9;
+            color: #1c1917;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        #root {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Custom scrollbar for webkit browsers */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f5f5f4;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #d6d3d1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a29e;
+        }
+        
+        /* Focus styles for accessibility */
+        *:focus {
+            outline: 2px solid #0ea5e9;
+            outline-offset: 2px;
+        }
+        
+        /* Button focus styles */
+        button:focus {
+            outline: 2px solid #0ea5e9;
+            outline-offset: 2px;
+        }
+        
+        /* Input focus styles */
+        input:focus, textarea:focus {
+            outline: 2px solid #0ea5e9;
+            outline-offset: 2px;
+        }
+        
+        /* Loading animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        /* Responsive design helpers */
+        @media (max-width: 768px) {
+            body {
+                font-size: 14px;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            body {
+                font-size: 16px;
+            }
+        }
+        
+        /* Print styles */
+        @media print {
+            * {
+                background: white !important;
+                color: black !important;
+            }
+        }
+        
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            * {
+                border-color: currentColor !important;
+            }
+        }
+        
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        /* Dark mode support (future enhancement) */
+        @media (prefers-color-scheme: dark) {
+            html, body {
+                background-color: #1c1917;
+                color: #fafaf9;
+            }
+        }
+    </style>
+</head>
+<body>
+    <noscript>
+        <div style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            padding: 20px;
+            background-color: #fafaf9;
+            color: #1c1917;
+            font-family: 'Inter', sans-serif;
+        ">
+            <div>
+                <h1>JavaScript Required</h1>
+                <p>Please enable JavaScript in your browser to use the ICAN Portal.</p>
+            </div>
+        </div>
+    </noscript>
+    
+    <div id="root"></div>
+</body>
+</html>

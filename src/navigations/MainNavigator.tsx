@@ -6,12 +6,13 @@ import FinancialScreen from '../screens/main/FinancialScreen';
 import CPDScreen from '../screens/main/CPDScreen';
 import EventsScreen from '../screens/main/EventsScreen';
 import ChatScreen from '../screens/main/ChatScreen';
-import VotingSurveysScreen from '../screens/main/Voting';
+import VotingSurveysScreen from '../screens/main/VotingScreen';
 import ProfileSecurityScreen from '../screens/main/ProfileSecurityScreen';
 
 import CustomDrawer from '../components/CustomDrawer';
 import DashboardTabs from './DashboardTabs';
 import CommunicationScreen from '../screens/main/CommunicationScreen';
+import NotificationsScreen from '../screens/main/NotificationScreen';
 
 export type MainDrawerParamList = {
   dashboard: undefined;
@@ -22,6 +23,7 @@ export type MainDrawerParamList = {
   voting: undefined;
   profile: undefined;
   communication: undefined;
+  notifications: undefined;
 };
 
 interface MainNavigatorProps {
@@ -140,6 +142,17 @@ const MainNavigator: FC<MainNavigatorProps> = ({ onLogout }) => {
         }}
       >
         {(props) => <CommunicationScreen {...props} onLogout={onLogout} />}
+      </Drawer.Screen>
+      <Drawer.Screen
+        name="notifications"
+        options={{
+          drawerIcon: ({ color, size }) => (
+            <Ionicons name="notifications-outline" size={size} color={color} />
+          ),
+          title: 'Notifications',
+        }}
+      >
+        {(props) => <NotificationsScreen {...props} onLogout={onLogout} />}
       </Drawer.Screen>
     </Drawer.Navigator>
   );

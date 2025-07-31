@@ -7,11 +7,12 @@ import { Ionicons } from '@expo/vector-icons';
 import DashboardScreen from '../screens/main/DashboardScreen';
 import CommunicationScreen from '../screens/main/CommunicationScreen';
 import ChatScreen from '../screens/main/ChatScreen';
+import ProfileSecurityScreen from '../screens/main/ProfileSecurityScreen';
 
 // Define param list explicitly
 export type DashboardTabParamList = {
   dashboard: undefined;
-  chat: undefined;
+  profile: undefined;
 };
 
 interface DashboardTabsProps {
@@ -28,7 +29,7 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({ onLogout }) => {
         headerShown: false,
         tabBarIcon: ({ color, size }) => {
           let iconName: React.ComponentProps<typeof Ionicons>['name'] = 'home-outline';
-          if (route.name === 'chat') {
+          if (route.name === 'profile') {
             iconName = 'chatbubble-ellipses-outline';
           }
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -45,10 +46,10 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({ onLogout }) => {
       </Tab.Screen>
 
       <Tab.Screen
-        name="chat"
-        options={{ title: 'Chat' }}
+        name="profile"
+        options={{ title: 'Profile' }}
         >
-            {(props) => <ChatScreen {...props} onLogout={onLogout} />}
+            {(props) => <ProfileSecurityScreen {...props} onLogout={onLogout} />}
         </Tab.Screen>
     </Tab.Navigator>
   );

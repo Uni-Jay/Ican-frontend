@@ -17,7 +17,7 @@ const BottomNavigation: React.FC<Props> = ({ currentScreen, onNavigate }) => {
         <Ionicons name="chatbubble-ellipses-outline" size={24} color={currentScreen === 'communication' ? 'white' : 'gray'} />
       </TouchableOpacity>
       <TouchableOpacity onPress={() => onNavigate('chat')}>
-        <Ionicons name="chatbubbles-outline" size={24} color={currentScreen === 'chat' ? 'white' : 'gray'} />
+        <Ionicons name="person-circle-outline" size={24} color={currentScreen === 'profile' ? 'white' : 'gray'} />
       </TouchableOpacity>
     </View>
   );

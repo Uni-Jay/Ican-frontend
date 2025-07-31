@@ -141,7 +141,7 @@ const CPDScreen: React.FC<Props> = ({ navigation, route, onLogout }) => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container}>
-        <Header title="CPD Modules" showBack onBack={() => navigation.navigate('dashboard')} />
+        {/* <Header title="CPD Modules" showBack onBack={() => navigation.navigate('dashboard')} /> */}
 
         <View style={styles.cpdStats}>
           <View style={styles.cpdStatCard}>

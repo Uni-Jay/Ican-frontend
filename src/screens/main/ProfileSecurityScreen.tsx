@@ -517,11 +517,14 @@ const ProfileSecurityScreen: React.FC<Props> = ({ navigation, route, onLogout })
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container}>
-        <Header
+        {/* <Header
           title="Profile & Security"
           showBack
           onBack={() => navigation.navigate('dashboard')}
-        />
+        /> */}
+        {/* <Header
+        showBack
+        onBack={() => navigation.navigate('dashboard')}/> */}
 
         {/* Tab Navigation */}
         <View style={styles.tabContainer}>

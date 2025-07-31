@@ -61,7 +61,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation,route, onLogout }) => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        <Header title="ICAN Dashboard" />
+        {/* <Header title="ICAN Dashboard" /> */}
 
         {/* Welcome Section */}
         <View style={styles.welcomeSection}>

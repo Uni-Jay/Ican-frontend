@@ -32,11 +32,11 @@ const FinancialScreen: React.FC<Props> = ({ navigation, route, onLogout }) => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container}>
-        <Header 
+        {/* <Header 
           title="Financial Services" 
           showBack 
           onBack={() => navigation.navigate('dashboard')} 
-        />
+        /> */}
         
         <View style={styles.balanceCard}>
           <Text style={styles.balanceTitle}>Available Balance</Text>

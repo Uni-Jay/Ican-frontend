@@ -171,11 +171,11 @@ const EventsScreen: React.FC<Props> = ({ navigation, route, onLogout }) => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container}>
-        <Header
+        {/* <Header
           title="Events & Training"
           showBack
           onBack={() => navigation.navigate('dashboard')}
-        />
+        /> */}
 
         {/* Tab Navigation */}
         <View style={styles.tabContainer}>

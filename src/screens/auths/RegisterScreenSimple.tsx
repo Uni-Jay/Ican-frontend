@@ -38,7 +38,10 @@ interface FormErrors {
   confirmPassword?: string;
 }
 
-const RegisterScreenSimple: React.FC<RegisterScreenProps> = ({ navigate, onRegister }) => {
+const RegisterScreenSimple: React.FC<RegisterScreenProps> = ({
+  navigate,
+  onRegister,
+}) => {
   const { register, isLoading, error, clearError } = useAuth();
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -60,40 +63,84 @@ const RegisterScreenSimple: React.FC<RegisterScreenProps> = ({ navigate, onRegis
   }, [error]);
 
   const handleInputChange = (field: keyof FormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const validateField = (field: keyof FormData, value: string): string => {
+    switch (field) {
+      case "name":
+        if (!value.trim()) return "Full name is required";
+        if (value.trim().length < 2)
+          return "Name must be at least 2 characters";
+        if (!/^[a-zA-Z\s]+$/.test(value.trim()))
+          return "Name can only contain letters and spaces";
+        return "";
+
+      case "email":
+        if (!value.trim()) return "Email is required";
+        if (!/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value)) {
+          return "Please enter a valid email address";
+        }
+        return "";
+
+      case "phone":
+        if (!value.trim()) return "Phone number is required";
+        if (!/^(\+234|0)[789][01]\d{8}$/.test(value.replace(/\s/g, ""))) {
+          return "Please enter a valid Nigerian phone number";
+        }
+        return "";
+
+      case "password":
+        if (!value) return "Password is required";
+        if (value.length < 8) return "Password must be at least 8 characters";
+        if (!/(?=.*[a-z])/.test(value))
+          return "Password must contain at least one lowercase letter";
+        if (!/(?=.*[A-Z])/.test(value))
+          return "Password must contain at least one uppercase letter";
+        if (!/(?=.*\d)/.test(value))
+          return "Password must contain at least one number";
+        if (!/(?=.*[@$!%*?&])/.test(value))
+          return "Password must contain at least one special character";
+        return "";
+
+      case "confirmPassword":
+        if (!value) return "Please confirm your password";
+        if (value !== formData.password) return "Passwords do not match";
+        return "";
+
+      case "membershipId":
+        if (value && !/^ICAN\/\d{4}\/\d{3,6}$/i.test(value)) {
+          return "Membership ID format: ICAN/YYYY/XXX";
+        }
+        return "";
+
+      default:
+        return "";
+    }
   };
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
-    
-    if (!formData.name.trim()) {
-      newErrors.name = "Full name is required";
-    }
-    
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address";
-    }
-    
-    if (!formData.phone.trim()) {
-      newErrors.phone = "Phone number is required";
-    }
-    
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
-    
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-    
+
+    // Validate all fields
+    Object.keys(formData).forEach((key) => {
+      const field = key as keyof FormData;
+      const error = validateField(field, formData[field]);
+      if (error) {
+        newErrors[field] = error;
+      }
+    });
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleFieldValidation = (field: keyof FormData, value: string) => {
+    const error = validateField(field, value);
+    setErrors((prev) => ({
+      ...prev,
+      [field]: error || undefined,
+    }));
   };
 
   const handleRegister = async () => {
@@ -101,16 +148,35 @@ const RegisterScreenSimple: React.FC<RegisterScreenProps> = ({ navigate, onRegis
       return;
     }
 
-    const success = await register({
-      name: formData.name.trim(),
-      email: formData.email.toLowerCase().trim(),
-      password: formData.password,
-      phone: formData.phone.trim(),
-      membershipId: formData.membershipId.trim() || undefined,
-    });
+    try {
+      const success = await register({
+        name: formData.name.trim(),
+        email: formData.email.toLowerCase().trim(),
+        password: formData.password,
+        phone: formData.phone.trim(),
+        membershipId: formData.membershipId.trim() || undefined,
+      });
 
-    if (success) {
-      onRegister();
+      if (success) {
+        onRegister();
+      }
+    } catch (err: any) {
+      // Handle backend validation errors
+      if (err.response?.data?.errors) {
+        const backendErrors: FormErrors = {};
+
+        // Map backend errors to form fields
+        err.response.data.errors.forEach((error: any) => {
+          if (error.field) {
+            backendErrors[error.field as keyof FormErrors] = error.message;
+          }
+        });
+
+        setErrors((prev) => ({ ...prev, ...backendErrors }));
+      } else if (err.response?.data?.message) {
+        // Show general error message
+        Alert.alert("Registration Error", err.response.data.message);
+      }
     }
   };
 
@@ -146,73 +212,137 @@ const RegisterScreenSimple: React.FC<RegisterScreenProps> = ({ navigate, onRegis
             </Text>
 
             <View style={styles.inputContainer}>
-              <View style={[styles.inputWrapper, errors.name ? styles.inputError : null]}>
-                <Ionicons name="person-outline" size={20} color="#666" style={styles.inputIcon} />
+              <View
+                style={[
+                  styles.inputWrapper,
+                  errors.name ? styles.inputError : null,
+                ]}
+              >
+                <Ionicons
+                  name="person-outline"
+                  size={20}
+                  color="#666"
+                  style={styles.inputIcon}
+                />
                 <TextInput
                   style={styles.input}
                   placeholder="Full Name"
                   value={formData.name}
                   onChangeText={(value) => {
                     handleInputChange("name", value);
-                    if (errors.name) setErrors(prev => ({ ...prev, name: undefined }));
+                    handleFieldValidation("name", value);
                   }}
                   autoCapitalize="words"
                 />
               </View>
-              {errors.name ? <Text style={styles.errorText}>{errors.name}</Text> : null}
+              {errors.name ? (
+                <Text style={styles.errorText}>{errors.name}</Text>
+              ) : null}
 
-              <View style={[styles.inputWrapper, errors.email ? styles.inputError : null]}>
-                <Ionicons name="mail-outline" size={20} color="#666" style={styles.inputIcon} />
+              <View
+                style={[
+                  styles.inputWrapper,
+                  errors.email ? styles.inputError : null,
+                ]}
+              >
+                <Ionicons
+                  name="mail-outline"
+                  size={20}
+                  color="#666"
+                  style={styles.inputIcon}
+                />
                 <TextInput
                   style={styles.input}
                   placeholder="Email Address"
                   value={formData.email}
                   onChangeText={(value) => {
                     handleInputChange("email", value);
-                    if (errors.email) setErrors(prev => ({ ...prev, email: undefined }));
+                    handleFieldValidation("email", value);
                   }}
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoCorrect={false}
                 />
               </View>
-              {errors.email ? <Text style={styles.errorText}>{errors.email}</Text> : null}
+              {errors.email ? (
+                <Text style={styles.errorText}>{errors.email}</Text>
+              ) : null}
 
-              <View style={[styles.inputWrapper, errors.phone ? styles.inputError : null]}>
-                <Ionicons name="call-outline" size={20} color="#666" style={styles.inputIcon} />
+              <View
+                style={[
+                  styles.inputWrapper,
+                  errors.phone ? styles.inputError : null,
+                ]}
+              >
+                <Ionicons
+                  name="call-outline"
+                  size={20}
+                  color="#666"
+                  style={styles.inputIcon}
+                />
                 <TextInput
                   style={styles.input}
-                  placeholder="Phone Number"
+                  placeholder="Phone Number (e.g., 08012345678)"
                   value={formData.phone}
                   onChangeText={(value) => {
                     handleInputChange("phone", value);
-                    if (errors.phone) setErrors(prev => ({ ...prev, phone: undefined }));
+                    handleFieldValidation("phone", value);
                   }}
                   keyboardType="phone-pad"
                 />
               </View>
-              {errors.phone ? <Text style={styles.errorText}>{errors.phone}</Text> : null}
+              {errors.phone ? (
+                <Text style={styles.errorText}>{errors.phone}</Text>
+              ) : null}
 
               <View style={styles.inputWrapper}>
-                <Ionicons name="card-outline" size={20} color="#666" style={styles.inputIcon} />
+                <Ionicons
+                  name="card-outline"
+                  size={20}
+                  color="#666"
+                  style={styles.inputIcon}
+                />
                 <TextInput
                   style={styles.input}
-                  placeholder="ICAN Membership ID (Optional)"
+                  placeholder="ICAN Membership ID (Optional) - ICAN/YYYY/XXX"
                   value={formData.membershipId}
-                  onChangeText={(value) => handleInputChange("membershipId", value)}
+                  onChangeText={(value) => {
+                    handleInputChange("membershipId", value);
+                    handleFieldValidation("membershipId", value);
+                  }}
                   autoCapitalize="characters"
                 />
               </View>
+              {errors.membershipId ? (
+                <Text style={styles.errorText}>{errors.membershipId}</Text>
+              ) : null}
 
-              <View style={[styles.inputWrapper, errors.password ? styles.inputError : null]}>
-                <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.inputIcon} />
+              <View
+                style={[
+                  styles.inputWrapper,
+                  errors.password ? styles.inputError : null,
+                ]}
+              >
+                <Ionicons
+                  name="lock-closed-outline"
+                  size={20}
+                  color="#666"
+                  style={styles.inputIcon}
+                />
                 <TextInput
                   style={styles.input}
-                  placeholder="Password"
+                  placeholder="Password (8+ chars, uppercase, lowercase, number, special)"
                   value={formData.password}
                   onChangeText={(value) => {
                     handleInputChange("password", value);
-                    if (errors.password) setErrors(prev => ({ ...prev, password: undefined }));
+                    handleFieldValidation("password", value);
+                    // Also validate confirm password if it exists
+                    if (formData.confirmPassword) {
+                      handleFieldValidation(
+                        "confirmPassword",
+                        formData.confirmPassword
+                      );
+                    }
                   }}
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
@@ -228,17 +358,29 @@ const RegisterScreenSimple: React.FC<RegisterScreenProps> = ({ navigate, onRegis
                   />
                 </TouchableOpacity>
               </View>
-              {errors.password ? <Text style={styles.errorText}>{errors.password}</Text> : null}
+              {errors.password ? (
+                <Text style={styles.errorText}>{errors.password}</Text>
+              ) : null}
 
-              <View style={[styles.inputWrapper, errors.confirmPassword ? styles.inputError : null]}>
-                <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.inputIcon} />
+              <View
+                style={[
+                  styles.inputWrapper,
+                  errors.confirmPassword ? styles.inputError : null,
+                ]}
+              >
+                <Ionicons
+                  name="lock-closed-outline"
+                  size={20}
+                  color="#666"
+                  style={styles.inputIcon}
+                />
                 <TextInput
                   style={styles.input}
                   placeholder="Confirm Password"
                   value={formData.confirmPassword}
                   onChangeText={(value) => {
                     handleInputChange("confirmPassword", value);
-                    if (errors.confirmPassword) setErrors(prev => ({ ...prev, confirmPassword: undefined }));
+                    handleFieldValidation("confirmPassword", value);
                   }}
                   secureTextEntry={!showConfirmPassword}
                   autoCapitalize="none"
@@ -248,17 +390,24 @@ const RegisterScreenSimple: React.FC<RegisterScreenProps> = ({ navigate, onRegis
                   onPress={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
                   <Ionicons
-                    name={showConfirmPassword ? "eye-outline" : "eye-off-outline"}
+                    name={
+                      showConfirmPassword ? "eye-outline" : "eye-off-outline"
+                    }
                     size={20}
                     color="#666"
                   />
                 </TouchableOpacity>
               </View>
-              {errors.confirmPassword ? <Text style={styles.errorText}>{errors.confirmPassword}</Text> : null}
+              {errors.confirmPassword ? (
+                <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+              ) : null}
             </View>
 
             <TouchableOpacity
-              style={[styles.registerButton, isLoading && styles.registerButtonDisabled]}
+              style={[
+                styles.registerButton,
+                isLoading && styles.registerButtonDisabled,
+              ]}
               onPress={handleRegister}
               disabled={isLoading}
             >

@@ -20,7 +20,10 @@ type LoginScreenProps = {
   navigate: (screen: "forgot" | "register") => void;
 };
 
-const LoginScreenSimple: React.FC<LoginScreenProps> = ({ onLogin, navigate }) => {
+const LoginScreenSimple: React.FC<LoginScreenProps> = ({
+  onLogin,
+  navigate,
+}) => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -36,30 +39,28 @@ const LoginScreenSimple: React.FC<LoginScreenProps> = ({ onLogin, navigate }) =>
     }
   }, [error]);
 
+  const validateEmail = (value: string): string => {
+    if (!value.trim()) return "Email is required";
+    if (!/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value)) {
+      return "Please enter a valid email address";
+    }
+    return "";
+  };
+
+  const validatePassword = (value: string): string => {
+    if (!value) return "Password is required";
+    if (value.length < 6) return "Password must be at least 6 characters";
+    return "";
+  };
+
   const validateForm = (): boolean => {
-    let isValid = true;
+    const emailErr = validateEmail(email);
+    const passwordErr = validatePassword(password);
 
-    if (!email.trim()) {
-      setEmailError("Email is required");
-      isValid = false;
-    } else if (!/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
-      setEmailError("Please enter a valid email address");
-      isValid = false;
-    } else {
-      setEmailError("");
-    }
+    setEmailError(emailErr);
+    setPasswordError(passwordErr);
 
-    if (!password) {
-      setPasswordError("Password is required");
-      isValid = false;
-    } else if (password.length < 6) {
-      setPasswordError("Password must be at least 6 characters");
-      isValid = false;
-    } else {
-      setPasswordError("");
-    }
-
-    return isValid;
+    return !emailErr && !passwordErr;
   };
 
   const handleLogin = async () => {
@@ -108,32 +109,56 @@ const LoginScreenSimple: React.FC<LoginScreenProps> = ({ onLogin, navigate }) =>
             </Text>
 
             <View style={styles.inputContainer}>
-              <View style={[styles.inputWrapper, emailError ? styles.inputError : null]}>
-                <Ionicons name="mail-outline" size={20} color="#666" style={styles.inputIcon} />
+              <View
+                style={[
+                  styles.inputWrapper,
+                  emailError ? styles.inputError : null,
+                ]}
+              >
+                <Ionicons
+                  name="mail-outline"
+                  size={20}
+                  color="#666"
+                  style={styles.inputIcon}
+                />
                 <TextInput
                   style={styles.input}
                   placeholder="Email Address"
                   value={email}
                   onChangeText={(text) => {
                     setEmail(text);
-                    if (emailError) setEmailError("");
+                    const error = validateEmail(text);
+                    setEmailError(error);
                   }}
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoCorrect={false}
                 />
               </View>
-              {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
+              {emailError ? (
+                <Text style={styles.errorText}>{emailError}</Text>
+              ) : null}
 
-              <View style={[styles.inputWrapper, passwordError ? styles.inputError : null]}>
-                <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.inputIcon} />
+              <View
+                style={[
+                  styles.inputWrapper,
+                  passwordError ? styles.inputError : null,
+                ]}
+              >
+                <Ionicons
+                  name="lock-closed-outline"
+                  size={20}
+                  color="#666"
+                  style={styles.inputIcon}
+                />
                 <TextInput
                   style={styles.input}
                   placeholder="Password"
                   value={password}
                   onChangeText={(text) => {
                     setPassword(text);
-                    if (passwordError) setPasswordError("");
+                    const error = validatePassword(text);
+                    setPasswordError(error);
                   }}
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
@@ -149,7 +174,9 @@ const LoginScreenSimple: React.FC<LoginScreenProps> = ({ onLogin, navigate }) =>
                   />
                 </TouchableOpacity>
               </View>
-              {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
+              {passwordError ? (
+                <Text style={styles.errorText}>{passwordError}</Text>
+              ) : null}
             </View>
 
             <TouchableOpacity
@@ -160,7 +187,10 @@ const LoginScreenSimple: React.FC<LoginScreenProps> = ({ onLogin, navigate }) =>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
+              style={[
+                styles.loginButton,
+                isLoading && styles.loginButtonDisabled,
+              ]}
               onPress={handleLogin}
               disabled={isLoading}
             >

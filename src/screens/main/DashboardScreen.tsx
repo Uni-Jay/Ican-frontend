@@ -90,7 +90,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation, onLogout }) => {
         ]);
 
         if (statsResponse.success && statsResponse.data) {
-          setDashboardStats(statsResponse.data.stats);
+          setDashboardStats(statsResponse.data);
         }
 
         if (notificationsResponse.success && notificationsResponse.data) {

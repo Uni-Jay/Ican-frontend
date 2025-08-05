@@ -161,6 +161,8 @@ const RegisterScreenSimple: React.FC<RegisterScreenProps> = ({
         onRegister();
       }
     } catch (err: any) {
+      console.log("Registration error:", err.response?.data);
+
       // Handle backend validation errors
       if (err.response?.data?.errors) {
         const backendErrors: FormErrors = {};
@@ -173,9 +175,32 @@ const RegisterScreenSimple: React.FC<RegisterScreenProps> = ({
         });
 
         setErrors((prev) => ({ ...prev, ...backendErrors }));
+
+        // Show specific error alert for duplicate email
+        if (backendErrors.email) {
+          Alert.alert("Email Already Registered", backendErrors.email, [
+            { text: "Try Login", onPress: () => navigate("login") },
+            { text: "Use Different Email", style: "cancel" },
+          ]);
+        }
+      } else if (err.response?.status === 409) {
+        // Handle conflict errors (duplicates)
+        const message =
+          err.response.data?.message ||
+          "This information is already registered";
+        Alert.alert("Registration Conflict", message, [
+          { text: "Try Login", onPress: () => navigate("login") },
+          { text: "OK", style: "cancel" },
+        ]);
       } else if (err.response?.data?.message) {
         // Show general error message
         Alert.alert("Registration Error", err.response.data.message);
+      } else {
+        // Network or other errors
+        Alert.alert(
+          "Registration Failed",
+          "Unable to create account. Please check your connection and try again."
+        );
       }
     }
   };

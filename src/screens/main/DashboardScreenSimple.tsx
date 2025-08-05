@@ -8,9 +8,23 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   RefreshControl,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../../contexts/AuthContext";
+import apiService from "../../services/api";
+
+interface Notification {
+  _id: string;
+  title: string;
+  message: string;
+  type: string;
+  priority: string;
+  isRead: boolean;
+  createdAt: string;
+  actionUrl?: string;
+  actionText?: string;
+}
 
 interface Props {
   navigation?: any;
@@ -21,13 +35,105 @@ const DashboardScreenSimple: React.FC<Props> = ({ navigation, onLogout }) => {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
-  const onRefresh = () => {
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+    }
+  }, [user]);
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await apiService.getDashboardNotifications(5);
+      if (response.success && response.data) {
+        setNotifications(response.data.notifications || []);
+        setUnreadCount(response.data.unreadCount || 0);
+      }
+    } catch (error) {
+      console.error("Failed to fetch notifications:", error);
+      // Don't show error for notifications, just log it
+    }
+  };
+
+  const onRefresh = async () => {
     setRefreshing(true);
-    // Simulate refresh
-    setTimeout(() => {
+    try {
+      await fetchNotifications();
+    } catch (error) {
+      console.error("Refresh failed:", error);
+    } finally {
       setRefreshing(false);
-    }, 1000);
+    }
+  };
+
+  const handleNotificationPress = async (notification: Notification) => {
+    try {
+      // Mark as read if unread
+      if (!notification.isRead) {
+        await apiService.markNotificationAsRead(notification._id);
+        // Update local state
+        setNotifications((prev) =>
+          prev.map((n) =>
+            n._id === notification._id ? { ...n, isRead: true } : n
+          )
+        );
+        setUnreadCount((prev) => Math.max(0, prev - 1));
+      }
+
+      // Navigate to action URL if available
+      if (notification.actionUrl && navigation) {
+        navigation.navigate(notification.actionUrl.replace("/", ""));
+      }
+    } catch (error) {
+      console.error("Failed to handle notification:", error);
+    }
+  };
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case "cpd":
+        return "school";
+      case "event":
+        return "calendar";
+      case "financial":
+        return "wallet";
+      case "voting":
+        return "checkbox";
+      case "chat":
+        return "chatbubble";
+      case "system":
+        return "settings";
+      default:
+        return "notifications";
+    }
+  };
+
+  const getNotificationColor = (priority: string) => {
+    switch (priority) {
+      case "high":
+        return "#e53e3e";
+      case "medium":
+        return "#d69e2e";
+      case "low":
+        return "#38a169";
+      default:
+        return "#3182ce";
+    }
+  };
+
+  const formatNotificationTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60)
+    );
+
+    if (diffInHours < 1) return "Just now";
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    if (diffInHours < 48) return "Yesterday";
+    return date.toLocaleDateString();
   };
 
   if (!user) {
@@ -48,8 +154,8 @@ const DashboardScreenSimple: React.FC<Props> = ({ navigation, onLogout }) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView 
-        style={styles.container} 
+      <ScrollView
+        style={styles.container}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -92,9 +198,7 @@ const DashboardScreenSimple: React.FC<Props> = ({ navigation, onLogout }) => {
           </View>
           <View style={styles.statCard}>
             <Ionicons name="school" size={24} color="#38a169" />
-            <Text style={styles.statValue}>
-              {user?.cpdPoints || 25}
-            </Text>
+            <Text style={styles.statValue}>{user?.cpdPoints || 25}</Text>
             <Text style={styles.statLabel}>CPD Points</Text>
           </View>
         </View>
@@ -136,27 +240,67 @@ const DashboardScreenSimple: React.FC<Props> = ({ navigation, onLogout }) => {
 
         {/* Recent Updates */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recent Updates</Text>
-          <View style={styles.notificationCard}>
-            <View style={styles.notificationIcon}>
-              <Ionicons name="school" size={20} color="#3182ce" />
-            </View>
-            <View style={styles.notificationContent}>
-              <Text style={styles.notificationTitle}>Welcome to ICAN Portal</Text>
-              <Text style={styles.notificationMessage}>
-                Your professional development journey starts here
-              </Text>
-              <Text style={styles.notificationTime}>Today</Text>
-            </View>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Recent Updates</Text>
+            {unreadCount > 0 && (
+              <View style={styles.unreadBadge}>
+                <Text style={styles.unreadText}>{unreadCount}</Text>
+              </View>
+            )}
           </View>
+
+          {notifications.length > 0 ? (
+            notifications.map((notification) => (
+              <TouchableOpacity
+                key={notification._id}
+                style={[
+                  styles.notificationCard,
+                  !notification.isRead && styles.unreadNotification,
+                ]}
+                onPress={() => handleNotificationPress(notification)}
+              >
+                <View style={styles.notificationIcon}>
+                  <Ionicons
+                    name={getNotificationIcon(notification.type)}
+                    size={20}
+                    color={getNotificationColor(notification.priority)}
+                  />
+                </View>
+                <View style={styles.notificationContent}>
+                  <Text
+                    style={[
+                      styles.notificationTitle,
+                      !notification.isRead && styles.unreadTitle,
+                    ]}
+                  >
+                    {notification.title}
+                  </Text>
+                  <Text style={styles.notificationMessage}>
+                    {notification.message}
+                  </Text>
+                  <Text style={styles.notificationTime}>
+                    {formatNotificationTime(notification.createdAt)}
+                  </Text>
+                  {notification.actionText && (
+                    <Text style={styles.actionHint}>
+                      Tap to {notification.actionText.toLowerCase()}
+                    </Text>
+                  )}
+                </View>
+                {!notification.isRead && <View style={styles.unreadDot} />}
+              </TouchableOpacity>
+            ))
+          ) : (
+            <View style={styles.emptyNotifications}>
+              <Ionicons name="notifications-off" size={48} color="#ccc" />
+              <Text style={styles.emptyText}>No recent updates</Text>
+            </View>
+          )}
         </View>
 
         {/* Logout Button */}
         <View style={styles.section}>
-          <TouchableOpacity
-            style={styles.logoutButton}
-            onPress={onLogout}
-          >
+          <TouchableOpacity style={styles.logoutButton} onPress={onLogout}>
             <Ionicons name="log-out-outline" size={20} color="white" />
             <Text style={styles.logoutText}>Logout</Text>
           </TouchableOpacity>
@@ -337,6 +481,52 @@ const styles = StyleSheet.create({
   notificationTime: {
     fontSize: 12,
     color: "#999",
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  unreadBadge: {
+    backgroundColor: "#e53e3e",
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    minWidth: 24,
+    alignItems: "center",
+  },
+  unreadText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  unreadNotification: {
+    backgroundColor: "#f0f8ff",
+    borderLeftWidth: 4,
+    borderLeftColor: "#3182ce",
+  },
+  unreadTitle: {
+    fontWeight: "bold",
+  },
+  unreadDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#3182ce",
+    position: "absolute",
+    top: 15,
+    right: 15,
+  },
+  actionHint: {
+    fontSize: 11,
+    color: "#3182ce",
+    fontStyle: "italic",
+    marginTop: 2,
+  },
+  emptyNotifications: {
+    alignItems: "center",
+    paddingVertical: 30,
   },
   loadingContainer: {
     flex: 1,

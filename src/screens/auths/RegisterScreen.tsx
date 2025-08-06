@@ -8,8 +8,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+<<<<<<< HEAD
   TextInput,
   TouchableOpacity,
+=======
+>>>>>>> feat: update project
   ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -61,6 +64,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+<<<<<<< HEAD
   useEffect(() => {
     if (error) {
       Alert.alert("Registration Error", error);
@@ -105,6 +109,37 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({
 
   const handleRegister = async () => {
     if (!validateForm()) {
+=======
+  const handleRegister = async () => {
+    const {
+      firstName,
+      lastName,
+      email,
+      membershipId,
+      password,
+      confirmPassword,
+    } = formData;
+
+    if (
+      !firstName ||
+      !lastName ||
+      !email ||
+      !membershipId ||
+      !password ||
+      !confirmPassword
+    ) {
+      Alert.alert("Error", "Please fill in all fields");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert("Error", "Passwords do not match");
+      return;
+    }
+
+    if (password.length < 6) {
+      Alert.alert("Error", "Password must be at least 6 characters");
+>>>>>>> feat: update project
       return;
     }
 
@@ -116,9 +151,19 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({
       membershipId: formData.membershipId.trim() || undefined,
     });
 
+<<<<<<< HEAD
     if (success) {
       onRegister();
     }
+=======
+    // Simulate API call
+    setTimeout(() => {
+      setIsLoading(false);
+      Alert.alert("Success", "Account created successfully!", [
+        { text: "OK", onPress: () => navigate("login") },
+      ]);
+    }, 2000);
+>>>>>>> feat: update project
   };
 
   return (
@@ -146,6 +191,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({
           <View style={styles.formContainer}>
             <Text style={styles.welcomeText}>Join ICAN</Text>
             <Text style={styles.registerSubtext}>
+<<<<<<< HEAD
               Create your account to access professional development resources
             </Text>
 
@@ -173,17 +219,66 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({
                   }}
                   autoCapitalize="words"
                 />
+=======
+              Create your account to get started
+            </Text>
+
+            <View style={styles.inputContainer}>
+              <View style={styles.nameRow}>
+                <View
+                  style={[styles.inputWrapper, { flex: 1, marginRight: 10 }]}
+                >
+                  <Ionicons
+                    name="person-outline"
+                    size={20}
+                    color="#666"
+                    style={styles.inputIcon}
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="First Name"
+                    value={formData.firstName}
+                    onChangeText={(value) =>
+                      handleInputChange("firstName", value)
+                    }
+                    autoCapitalize="words"
+                  />
+                </View>
+                <View
+                  style={[styles.inputWrapper, { flex: 1, marginLeft: 10 }]}
+                >
+                  <Ionicons
+                    name="person-outline"
+                    size={20}
+                    color="#666"
+                    style={styles.inputIcon}
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Last Name"
+                    value={formData.lastName}
+                    onChangeText={(value) =>
+                      handleInputChange("lastName", value)
+                    }
+                    autoCapitalize="words"
+                  />
+                </View>
+>>>>>>> feat: update project
               </View>
               {errors.name ? (
                 <Text style={styles.errorText}>{errors.name}</Text>
               ) : null}
 
+<<<<<<< HEAD
               <View
                 style={[
                   styles.inputWrapper,
                   errors.email ? styles.inputError : null,
                 ]}
               >
+=======
+              <View style={styles.inputWrapper}>
+>>>>>>> feat: update project
                 <Ionicons
                   name="mail-outline"
                   size={20}
@@ -194,11 +289,15 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({
                   style={styles.input}
                   placeholder="Email Address"
                   value={formData.email}
+<<<<<<< HEAD
                   onChangeText={(value) => {
                     handleInputChange("email", value);
                     if (errors.email)
                       setErrors((prev) => ({ ...prev, email: undefined }));
                   }}
+=======
+                  onChangeText={(value) => handleInputChange("email", value)}
+>>>>>>> feat: update project
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoCorrect={false}
@@ -208,6 +307,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({
                 <Text style={styles.errorText}>{errors.email}</Text>
               ) : null}
 
+<<<<<<< HEAD
               <Input
                 label="Phone Number"
                 placeholder="Enter your phone number"
@@ -283,6 +383,83 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({
                 autoCapitalize="none"
                 variant="filled"
               />
+=======
+              <View style={styles.inputWrapper}>
+                <Ionicons
+                  name="card-outline"
+                  size={20}
+                  color="#666"
+                  style={styles.inputIcon}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="ICAN Membership ID"
+                  value={formData.membershipId}
+                  onChangeText={(value) =>
+                    handleInputChange("membershipId", value)
+                  }
+                  autoCapitalize="characters"
+                />
+              </View>
+
+              <View style={styles.inputWrapper}>
+                <Ionicons
+                  name="lock-closed-outline"
+                  size={20}
+                  color="#666"
+                  style={styles.inputIcon}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Password"
+                  value={formData.password}
+                  onChangeText={(value) => handleInputChange("password", value)}
+                  secureTextEntry={!showPassword}
+                  autoCapitalize="none"
+                />
+                <TouchableOpacity
+                  style={styles.eyeIcon}
+                  onPress={() => setShowPassword(!showPassword)}
+                >
+                  <Ionicons
+                    name={showPassword ? "eye-outline" : "eye-off-outline"}
+                    size={20}
+                    color="#666"
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.inputWrapper}>
+                <Ionicons
+                  name="lock-closed-outline"
+                  size={20}
+                  color="#666"
+                  style={styles.inputIcon}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Confirm Password"
+                  value={formData.confirmPassword}
+                  onChangeText={(value) =>
+                    handleInputChange("confirmPassword", value)
+                  }
+                  secureTextEntry={!showConfirmPassword}
+                  autoCapitalize="none"
+                />
+                <TouchableOpacity
+                  style={styles.eyeIcon}
+                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  <Ionicons
+                    name={
+                      showConfirmPassword ? "eye-outline" : "eye-off-outline"
+                    }
+                    size={20}
+                    color="#666"
+                  />
+                </TouchableOpacity>
+              </View>
+>>>>>>> feat: update project
             </View>
 
             <TouchableOpacity
@@ -293,6 +470,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({
               onPress={handleRegister}
               disabled={isLoading}
             >
+<<<<<<< HEAD
               {isLoading ? (
                 <View style={styles.loadingContainer}>
                   <ActivityIndicator size="small" color="white" />
@@ -303,6 +481,11 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({
               ) : (
                 <Text style={styles.registerButtonText}>Create Account</Text>
               )}
+=======
+              <Text style={styles.registerButtonText}>
+                {isLoading ? "Creating Account..." : "Create Account"}
+              </Text>
+>>>>>>> feat: update project
             </TouchableOpacity>
 
             <View style={styles.termsContainer}>
@@ -336,10 +519,19 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   header: {
+<<<<<<< HEAD
     backgroundColor: "#3182ce",
     paddingTop: 50,
     paddingBottom: 30,
     paddingHorizontal: 20,
+=======
+    backgroundColor: "#1a365d",
+    paddingTop: 60,
+    paddingBottom: 30,
+    paddingHorizontal: 20,
+    flexDirection: "row",
+    alignItems: "center",
+>>>>>>> feat: update project
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
   },
@@ -347,11 +539,18 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     marginBottom: 20,
   },
+<<<<<<< HEAD
   registerTitle: {
     fontSize: 28,
     fontWeight: "bold",
     color: "white",
     textAlign: "center",
+=======
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "white",
+>>>>>>> feat: update project
   },
   formContainer: {
     flex: 1,
@@ -372,6 +571,13 @@ const styles = StyleSheet.create({
   inputContainer: {
     marginBottom: 30,
   },
+<<<<<<< HEAD
+=======
+  nameRow: {
+    flexDirection: "row",
+    marginBottom: 20,
+  },
+>>>>>>> feat: update project
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
@@ -382,6 +588,14 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     borderWidth: 1,
     borderColor: "#e2e8f0",
+<<<<<<< HEAD
+=======
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+>>>>>>> feat: update project
   },
   inputIcon: {
     marginRight: 10,
@@ -389,6 +603,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
+<<<<<<< HEAD
     color: "#333",
   },
   registerButton: {
@@ -398,6 +613,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 20,
     marginBottom: 20,
+=======
+    color: "#1a202c",
+  },
+  eyeIcon: {
+    padding: 5,
+  },
+  registerButton: {
+    backgroundColor: "#3182ce",
+    paddingVertical: 18,
+    borderRadius: 12,
+    alignItems: "center",
+    marginBottom: 20,
+    shadowColor: "#3182ce",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+>>>>>>> feat: update project
   },
   registerButtonDisabled: {
     opacity: 0.6,
@@ -405,10 +638,14 @@ const styles = StyleSheet.create({
   registerButtonText: {
     color: "white",
     fontSize: 18,
+<<<<<<< HEAD
     fontWeight: "600",
   },
   eyeIcon: {
     padding: 5,
+=======
+    fontWeight: "bold",
+>>>>>>> feat: update project
   },
   termsContainer: {
     marginBottom: 30,
@@ -436,6 +673,7 @@ const styles = StyleSheet.create({
     color: "#3182ce",
     fontSize: 16,
     fontWeight: "bold",
+<<<<<<< HEAD
   },
   inputError: {
     borderColor: "#e53e3e",
@@ -451,6 +689,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+=======
+>>>>>>> feat: update project
   },
 });
 

@@ -1,6 +1,11 @@
 import React, { useState, FC } from "react";
+<<<<<<< HEAD
 import LoginScreenSimple from "../screens/auths/LoginScreenSimple";
 import RegisterScreenSimple from "../screens/auths/RegisterScreenSimple";
+=======
+import LoginScreen from "../screens/auths/LoginScreen";
+import RegisterScreen from "../screens/auths/RegisterScreen";
+>>>>>>> feat: update project
 import ForgotPasswordScreen from "../screens/auths/ForgotPasswordScreen";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -23,14 +28,22 @@ const AuthNavigator: FC = () => {
     switch (currentScreen) {
       case "login":
         return (
+<<<<<<< HEAD
           <LoginScreenSimple
+=======
+          <LoginScreen
+>>>>>>> feat: update project
             onLogin={handleAuthSuccess}
             navigate={navigateToScreen}
           />
         );
       case "register":
         return (
+<<<<<<< HEAD
           <RegisterScreenSimple
+=======
+          <RegisterScreen
+>>>>>>> feat: update project
             navigate={navigateToScreen}
             onRegister={handleAuthSuccess}
           />
@@ -39,7 +52,11 @@ const AuthNavigator: FC = () => {
         return <ForgotPasswordScreen navigate={navigateToScreen} />;
       default:
         return (
+<<<<<<< HEAD
           <LoginScreenSimple
+=======
+          <LoginScreen
+>>>>>>> feat: update project
             onLogin={handleAuthSuccess}
             navigate={navigateToScreen}
           />

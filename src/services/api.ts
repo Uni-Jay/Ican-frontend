@@ -77,7 +77,15 @@ class ApiService {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     try {
+      // Ensure token is loaded before making request
+      if (!this.token) {
+        await this.loadToken();
+      }
+
       const url = `${this.baseURL}${endpoint}`;
+      console.log(`Making API request to: ${url}`);
+      console.log(`With token: ${this.token ? "Present" : "Missing"}`);
+
       const config: RequestInit = {
         ...options,
         headers: {
@@ -168,14 +176,8 @@ class ApiService {
 
   // Alias for getUserProfile
   async getUserProfile(): Promise<ApiResponse<{ user: User }>> {
-    const response = await this.request<User>("/user/profile");
-    if (response.success) {
-      return {
-        ...response,
-        data: { user: response.data },
-      } as ApiResponse<{ user: User }>;
-    }
-    return response as ApiResponse<{ user: User }>;
+    const response = await this.request<{ user: User }>("/user/profile");
+    return response;
   }
 
   async updateProfile(data: UpdateProfileRequest): Promise<ApiResponse<User>> {
@@ -204,9 +206,7 @@ class ApiService {
     return this.request<DashboardStats>("/dashboard/stats");
   }
 
-  async getDashboardNotifications(
-    limit: number = 5
-  ): Promise<
+  async getDashboardNotifications(limit: number = 5): Promise<
     ApiResponse<{
       notifications: Notification[];
       unreadCount: number;

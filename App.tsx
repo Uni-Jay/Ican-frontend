@@ -1,16 +1,5 @@
 import React from "react";
-<<<<<<< HEAD
-import {
-  StatusBar,
-  Platform,
-  View,
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-} from "react-native";
-=======
 import { StatusBar, Platform, View, ActivityIndicator } from "react-native";
->>>>>>> feat: update project
 import { NavigationContainer } from "@react-navigation/native";
 import MainNavigator from "./src/navigations/MainNavigator";
 import AuthNavigator from "./src/navigations/AuthNavigator";
@@ -21,28 +10,6 @@ const AppContent = () => {
 
   if (isLoading) {
     return (
-<<<<<<< HEAD
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#3182ce" />
-        <Text style={{ marginTop: 10, color: "#666" }}>Loading...</Text>
-      </View>
-    );
-  }
-
-  return (
-    <View style={styles.container}>
-      <NavigationContainer>
-        <StatusBar
-          barStyle="light-content"
-          backgroundColor="#1a365d"
-          translucent={Platform.OS === "android"}
-        />
-        {!isAuthenticated ? <AuthNavigator /> : <MainNavigator />}
-      </NavigationContainer>
-    </View>
-  );
-};
-=======
       <View
         style={{
           flex: 1,
@@ -55,30 +22,8 @@ const AppContent = () => {
       </View>
     );
   }
->>>>>>> feat: update project
 
-const App = () => {
   return (
-<<<<<<< HEAD
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f7fafc",
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f7fafc",
-  },
-});
-=======
     <NavigationContainer>
       <StatusBar
         barStyle="light-content"
@@ -97,6 +42,5 @@ const App = () => {
     </AuthProvider>
   );
 };
->>>>>>> feat: update project
 
 export default App;

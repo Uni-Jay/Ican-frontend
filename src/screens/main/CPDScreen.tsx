@@ -47,7 +47,7 @@ const mockCPDModules: CPDModule[] = [
     points: 20,
   },
   {
-    id: 2,
+    id: "2",
     title: "Tax Updates 2024",
     duration: "3 hours",
     progress: 100,
@@ -57,7 +57,7 @@ const mockCPDModules: CPDModule[] = [
     points: 30,
   },
   {
-    id: 3,
+    id: "3",
     title: "Digital Financial Reporting",
     duration: "1.5 hours",
     progress: 30,
@@ -67,7 +67,7 @@ const mockCPDModules: CPDModule[] = [
     points: 15,
   },
   {
-    id: 4,
+    id: "4",
     title: "Risk Management",
     duration: "2.5 hours",
     progress: 0,
@@ -351,7 +351,7 @@ const CPDScreen: React.FC<Props> = ({ navigation, route, onLogout }) => {
               </ScrollView>
 
               <View style={styles.modalFooter}>
-                {selectedModule?.completed ? (
+                {selectedModule?.completed || selectedModule?.completedAt ? (
                   <TouchableOpacity style={styles.completedButton} disabled>
                     <Ionicons name="checkmark-circle" size={20} color="white" />
                     <Text style={styles.completedButtonText}>Completed</Text>
@@ -359,7 +359,7 @@ const CPDScreen: React.FC<Props> = ({ navigation, route, onLogout }) => {
                 ) : (
                   <TouchableOpacity
                     style={styles.startButton}
-                    onPress={() => startModule(selectedModule?.id)}
+                    onPress={() => startModule()}
                   >
                     <Text style={styles.startButtonText}>
                       {(selectedModule?.progress ?? 0) > 0

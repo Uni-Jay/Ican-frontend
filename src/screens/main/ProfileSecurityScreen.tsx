@@ -30,6 +30,7 @@ interface UserProfile {
   balance: number;
   cpdPoints: number;
   profileImage?: string;
+  bio?: string;
   address?: {
     street?: string;
     city?: string;
@@ -93,7 +94,9 @@ const ProfileSecurityScreen: React.FC<Props> = ({
   );
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [changePasswordVisible, setChangePasswordVisible] = useState(false);
-  const [editField, setEditField] = useState<keyof UserProfile | null>(null);
+  const [editField, setEditField] = useState<
+    keyof UserProfile | "bio" | "address.city" | "address.state" | null
+  >(null);
   const [editValue, setEditValue] = useState("");
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -123,7 +126,7 @@ const ProfileSecurityScreen: React.FC<Props> = ({
       if (user && !profile) {
         console.log("Using user data from context as fallback:", user);
         const fallbackProfile: UserProfile = {
-          _id: user._id || "temp-id",
+          _id: (user as any)._id || user.id || "temp-id",
           name: user.name || "User",
           email: user.email || "",
           phone: user.phone || "",
@@ -132,13 +135,17 @@ const ProfileSecurityScreen: React.FC<Props> = ({
           balance: user.balance || 0,
           cpdPoints: user.cpdPoints || 0,
           profileImage: user.profileImage,
-          address: user.address || {
-            street: "",
-            city: "",
-            state: "",
-            country: "Nigeria",
-            postalCode: "",
-          },
+          bio: (user as any).bio || "",
+          address:
+            typeof user.address === "object"
+              ? user.address
+              : {
+                  street: "",
+                  city: "",
+                  state: "",
+                  country: "Nigeria",
+                  postalCode: "",
+                },
           preferences: user.preferences || {
             notifications: {
               email: true,
@@ -150,7 +157,10 @@ const ProfileSecurityScreen: React.FC<Props> = ({
           },
           dateJoined: user.dateJoined || new Date().toISOString(),
           isActive: user.isActive !== false,
-          memberSince: user.createdAt || new Date().toISOString(),
+          memberSince:
+            (user as any).createdAt ||
+            user.dateJoined ||
+            new Date().toISOString(),
           accountAge: 0,
           isProfileComplete: !!(user.name && user.email && user.phone),
         };
@@ -166,7 +176,55 @@ const ProfileSecurityScreen: React.FC<Props> = ({
 
         if (response.success && response.data && response.data.user) {
           console.log("Setting profile data:", response.data.user);
-          setProfile(response.data.user);
+
+          // Convert User to UserProfile
+          const userProfile: UserProfile = {
+            _id:
+              (response.data.user as any)._id ||
+              response.data.user.id ||
+              "temp-id",
+            name: response.data.user.name,
+            email: response.data.user.email,
+            phone: response.data.user.phone || "",
+            membershipId: response.data.user.membershipId,
+            membershipLevel: response.data.user.membershipLevel,
+            balance: response.data.user.balance,
+            cpdPoints: response.data.user.cpdPoints,
+            profileImage: response.data.user.profileImage,
+            bio: (response.data.user as any).bio || "",
+            address:
+              typeof response.data.user.address === "object"
+                ? response.data.user.address
+                : {
+                    street: "",
+                    city: "",
+                    state: "",
+                    country: "Nigeria",
+                    postalCode: "",
+                  },
+            preferences: response.data.user.preferences || {
+              notifications: {
+                email: true,
+                sms: false,
+                push: true,
+              },
+              language: "en",
+              timezone: "Africa/Lagos",
+            },
+            dateJoined: response.data.user.dateJoined,
+            isActive: response.data.user.isActive,
+            memberSince:
+              (response.data.user as any).createdAt ||
+              response.data.user.dateJoined,
+            accountAge: 0,
+            isProfileComplete: !!(
+              response.data.user.name &&
+              response.data.user.email &&
+              response.data.user.phone
+            ),
+          };
+
+          setProfile(userProfile);
 
           // Update security settings from user preferences
           if (response.data.user.preferences?.notifications) {
@@ -188,7 +246,7 @@ const ProfileSecurityScreen: React.FC<Props> = ({
 
         // Create fallback profile data if API fails
         const fallbackProfile: UserProfile = {
-          _id: user?._id || "temp-id",
+          _id: (user as any)?._id || user?.id || "temp-id",
           name: user?.name || "User",
           email: user?.email || "user@example.com",
           phone: user?.phone || "",
@@ -197,6 +255,7 @@ const ProfileSecurityScreen: React.FC<Props> = ({
           balance: user?.balance || 50000,
           cpdPoints: user?.cpdPoints || 25,
           profileImage: user?.profileImage,
+          bio: (user as any)?.bio || "",
           address: {
             street: "",
             city: "Lagos",
@@ -227,7 +286,15 @@ const ProfileSecurityScreen: React.FC<Props> = ({
           Alert.alert(
             "Authentication Error",
             "Your session has expired. Please log in again.",
-            [{ text: "OK", onPress: () => navigation.navigate("Auth") }]
+            [
+              {
+                text: "OK",
+                onPress: () => {
+                  // Handle logout and navigation to auth
+                  console.log("Session expired, logging out");
+                },
+              },
+            ]
           );
         }
       }
@@ -252,7 +319,9 @@ const ProfileSecurityScreen: React.FC<Props> = ({
     });
   };
 
-  const openEditModal = (field: keyof UserProfile) => {
+  const openEditModal = (
+    field: keyof UserProfile | "bio" | "address.city" | "address.state"
+  ) => {
     if (!profile) return;
 
     setEditField(field);
@@ -290,7 +359,7 @@ const ProfileSecurityScreen: React.FC<Props> = ({
         updateData[editField] = editValue.trim();
       }
 
-      const response = await apiService.updateUserProfile(updateData);
+      const response = await apiService.updateProfile(updateData);
 
       if (response.success) {
         // Update local state
@@ -387,10 +456,10 @@ const ProfileSecurityScreen: React.FC<Props> = ({
       <View style={styles.profilePictureSection}>
         <View style={styles.profilePicture}>
           <Text style={styles.profileInitials}>
-            {profile.name
-              .split(" ")
+            {profile?.name
+              ?.split(" ")
               .map((n) => n[0])
-              .join("")}
+              .join("") || "U"}
           </Text>
         </View>
         <TouchableOpacity style={styles.changePhotoButton}>
@@ -410,7 +479,9 @@ const ProfileSecurityScreen: React.FC<Props> = ({
             <Ionicons name="person" size={20} color="#666" />
             <View style={styles.profileItemText}>
               <Text style={styles.profileLabel}>Full Name</Text>
-              <Text style={styles.profileValue}>{profile.name}</Text>
+              <Text style={styles.profileValue}>
+                {profile?.name || "Not set"}
+              </Text>
             </View>
           </View>
           <Ionicons name="chevron-forward" size={16} color="#666" />
@@ -424,7 +495,9 @@ const ProfileSecurityScreen: React.FC<Props> = ({
             <Ionicons name="mail" size={20} color="#666" />
             <View style={styles.profileItemText}>
               <Text style={styles.profileLabel}>Email</Text>
-              <Text style={styles.profileValue}>{profile.email}</Text>
+              <Text style={styles.profileValue}>
+                {profile?.email || "Not set"}
+              </Text>
             </View>
           </View>
           <Ionicons name="chevron-forward" size={16} color="#666" />
@@ -438,7 +511,9 @@ const ProfileSecurityScreen: React.FC<Props> = ({
             <Ionicons name="call" size={20} color="#666" />
             <View style={styles.profileItemText}>
               <Text style={styles.profileLabel}>Phone Number</Text>
-              <Text style={styles.profileValue}>{profile.phone}</Text>
+              <Text style={styles.profileValue}>
+                {profile?.phone || "Not set"}
+              </Text>
             </View>
           </View>
           <Ionicons name="chevron-forward" size={16} color="#666" />
@@ -455,7 +530,7 @@ const ProfileSecurityScreen: React.FC<Props> = ({
             <View style={styles.profileItemText}>
               <Text style={styles.profileLabel}>Membership ID</Text>
               <Text style={styles.profileValue}>
-                {profile.membershipId || "Not assigned"}
+                {profile?.membershipId || "Not assigned"}
               </Text>
             </View>
           </View>
@@ -466,7 +541,9 @@ const ProfileSecurityScreen: React.FC<Props> = ({
             <Ionicons name="star" size={20} color="#666" />
             <View style={styles.profileItemText}>
               <Text style={styles.profileLabel}>Membership Level</Text>
-              <Text style={styles.profileValue}>{profile.membershipLevel}</Text>
+              <Text style={styles.profileValue}>
+                {profile?.membershipLevel || "Member"}
+              </Text>
             </View>
           </View>
         </View>
@@ -477,7 +554,7 @@ const ProfileSecurityScreen: React.FC<Props> = ({
             <View style={styles.profileItemText}>
               <Text style={styles.profileLabel}>Account Balance</Text>
               <Text style={styles.profileValue}>
-                ₦{profile.balance.toLocaleString()}
+                ₦{(profile?.balance || 0).toLocaleString()}
               </Text>
             </View>
           </View>
@@ -489,7 +566,7 @@ const ProfileSecurityScreen: React.FC<Props> = ({
             <View style={styles.profileItemText}>
               <Text style={styles.profileLabel}>CPD Points</Text>
               <Text style={styles.profileValue}>
-                {profile.cpdPoints} points
+                {profile?.cpdPoints || 0} points
               </Text>
             </View>
           </View>
@@ -533,7 +610,9 @@ const ProfileSecurityScreen: React.FC<Props> = ({
             <View style={styles.profileItemText}>
               <Text style={styles.profileLabel}>Member Since</Text>
               <Text style={styles.profileValue}>
-                {formatDate(profile.memberSince)}
+                {profile?.memberSince
+                  ? formatDate(profile.memberSince)
+                  : "Not available"}
               </Text>
             </View>
           </View>
@@ -547,7 +626,9 @@ const ProfileSecurityScreen: React.FC<Props> = ({
           style={styles.bioContainer}
           onPress={() => openEditModal("bio")}
         >
-          <Text style={styles.bioText}>{profile.bio}</Text>
+          <Text style={styles.bioText}>
+            {profile?.bio || "Add a bio to tell others about yourself..."}
+          </Text>
           <Ionicons
             name="create"
             size={16}
@@ -815,7 +896,7 @@ const ProfileSecurityScreen: React.FC<Props> = ({
         <Header
           title="Profile & Security"
           showBack
-          onBackPress={() => navigation.goBack()}
+          onBack={() => navigation.goBack()}
         />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#3182ce" />
@@ -832,7 +913,7 @@ const ProfileSecurityScreen: React.FC<Props> = ({
         <Header
           title="Profile & Security"
           showBack
-          onBackPress={() => navigation.goBack()}
+          onBack={() => navigation.goBack()}
         />
         <View style={styles.errorContainer}>
           <Ionicons name="alert-circle" size={64} color="#e53e3e" />

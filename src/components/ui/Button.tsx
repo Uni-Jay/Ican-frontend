@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   TouchableOpacity,
   Text,
@@ -7,19 +7,19 @@ import {
   StyleSheet,
   ViewStyle,
   TextStyle,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { theme } from '../../styles/theme';
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { theme } from "../../styles/theme";
 
 interface ButtonProps {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: "primary" | "secondary" | "outline" | "ghost";
+  size?: "sm" | "md" | "lg";
   disabled?: boolean;
   loading?: boolean;
   icon?: keyof typeof Ionicons.glyphMap;
-  iconPosition?: 'left' | 'right';
+  iconPosition?: "left" | "right";
   fullWidth?: boolean;
   style?: ViewStyle;
   textStyle?: TextStyle;
@@ -28,21 +28,21 @@ interface ButtonProps {
 const Button: React.FC<ButtonProps> = ({
   title,
   onPress,
-  variant = 'primary',
-  size = 'md',
+  variant = "primary",
+  size = "md",
   disabled = false,
   loading = false,
   icon,
-  iconPosition = 'left',
+  iconPosition = "left",
   fullWidth = false,
   style,
   textStyle,
 }) => {
   const getButtonStyle = (): ViewStyle => {
     const baseStyle: ViewStyle = {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
       borderRadius: theme.borderRadius.md,
       ...theme.shadows.base,
     };
@@ -72,26 +72,31 @@ const Button: React.FC<ButtonProps> = ({
         backgroundColor: theme.colors.secondary[500],
       },
       outline: {
-        backgroundColor: 'transparent',
+        backgroundColor: "transparent",
         borderWidth: 2,
         borderColor: theme.colors.primary[500],
         shadowOpacity: 0,
         elevation: 0,
       },
       ghost: {
-        backgroundColor: 'transparent',
+        backgroundColor: "transparent",
         shadowOpacity: 0,
         elevation: 0,
       },
     };
 
-    const disabledStyle: ViewStyle = disabled || loading ? {
-      opacity: 0.6,
-    } : {};
+    const disabledStyle: ViewStyle =
+      disabled || loading
+        ? {
+            opacity: 0.6,
+          }
+        : {};
 
-    const fullWidthStyle: ViewStyle = fullWidth ? {
-      width: '100%',
-    } : {};
+    const fullWidthStyle: ViewStyle = fullWidth
+      ? {
+          width: "100%",
+        }
+      : {};
 
     return {
       ...baseStyle,
@@ -105,7 +110,7 @@ const Button: React.FC<ButtonProps> = ({
   const getTextStyle = (): TextStyle => {
     const baseTextStyle: TextStyle = {
       fontFamily: theme.typography.fontFamily.medium,
-      fontWeight: theme.typography.fontWeight.semibold,
+      fontWeight: theme.typography.fontWeight.semibold as any,
     };
 
     // Size variants
@@ -167,11 +172,21 @@ const Button: React.FC<ButtonProps> = ({
     if (loading) {
       return (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator 
-            size="small" 
-            color={variant === 'primary' || variant === 'secondary' ? 'white' : theme.colors.primary[500]} 
+          <ActivityIndicator
+            size="small"
+            color={
+              variant === "primary" || variant === "secondary"
+                ? "white"
+                : theme.colors.primary[500]
+            }
           />
-          <Text style={[getTextStyle(), textStyle, { marginLeft: theme.spacing[2] }]}>
+          <Text
+            style={[
+              getTextStyle(),
+              textStyle,
+              { marginLeft: theme.spacing[2] },
+            ]}
+          >
             {title}
           </Text>
         </View>
@@ -180,7 +195,7 @@ const Button: React.FC<ButtonProps> = ({
 
     return (
       <View style={styles.contentContainer}>
-        {icon && iconPosition === 'left' && (
+        {icon && iconPosition === "left" && (
           <Ionicons
             name={icon}
             size={getIconSize()}
@@ -189,7 +204,7 @@ const Button: React.FC<ButtonProps> = ({
           />
         )}
         <Text style={[getTextStyle(), textStyle]}>{title}</Text>
-        {icon && iconPosition === 'right' && (
+        {icon && iconPosition === "right" && (
           <Ionicons
             name={icon}
             size={getIconSize()}
@@ -215,14 +230,14 @@ const Button: React.FC<ButtonProps> = ({
 
 const styles = StyleSheet.create({
   loadingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
   contentContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 

@@ -7,14 +7,8 @@ import {
   SafeAreaView,
   Dimensions,
   ActivityIndicator,
-<<<<<<< HEAD
   RefreshControl,
   TouchableOpacity,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { useAuth } from "../../contexts/AuthContext";
-import apiService from "../../services/api";
-=======
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Header from "../../components/Header";
@@ -22,12 +16,14 @@ import { DrawerScreenProps } from "@react-navigation/drawer";
 import { MainDrawerParamList } from "../../navigations/MainNavigator";
 import { useAuth } from "../../contexts/AuthContext";
 import apiService from "../../services/api";
-import { DashboardStats, Notification } from "../../types/api";
->>>>>>> feat: update project
+import {
+  DashboardStats as APIDashboardStats,
+  Notification,
+} from "../../types/api";
 
 const { width } = Dimensions.get("window");
 
-type DashboardStats = {
+type LocalDashboardStats = {
   cpdPoints: number;
   requiredPoints: number;
   completedModules: number;
@@ -38,82 +34,27 @@ type DashboardStats = {
   activePolls: number;
 };
 
-type NotificationItem = {
-  id: string;
-  title: string;
-  message: string;
-<<<<<<< HEAD
-  type: string;
-  createdAt: string;
-};
-
-const mockNotifications: NotificationItem[] = [
-  {
-    id: "1",
-    title: "CPD Seminar Tomorrow",
-    message: "Digital Transformation in Accounting",
-    type: "cpd",
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    title: "Payment Reminder",
-    message: "Annual membership due in 5 days",
-    type: "financial",
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "3",
-    title: "New Survey Available",
-    message: "Professional Development Needs Assessment",
-    type: "survey",
-    createdAt: new Date().toISOString(),
-  },
-];
-
-interface Props {
-  navigation?: any;
-  onLogout?: () => void;
-}
-
-const DashboardScreen: React.FC<Props> = ({ navigation, onLogout }) => {
-=======
-  time: string;
-  type: "cpd" | "financial" | "survey";
-};
-
-const mockUser: User = {
-  id: 1,
-  name: "John Doe",
-  email: "john.doe@ican.ng",
-  membershipId: "ICAN/2024/001",
-  membershipLevel: "Associate",
-  profileImage: null,
-  balance: 45000,
-  cpdPoints: 120,
-};
-
 const mockNotifications: Notification[] = [
   {
-    id: 1,
+    id: "1",
     title: "CPD Seminar Tomorrow",
     message: "Digital Transformation in Accounting",
     time: "2 hours ago",
     type: "cpd",
   },
   {
-    id: 2,
+    id: "2",
     title: "Payment Reminder",
     message: "Annual membership due in 5 days",
     time: "1 day ago",
     type: "financial",
   },
   {
-    id: 3,
+    id: "3",
     title: "New Survey Available",
     message: "Professional Development Needs Assessment",
     time: "3 days ago",
-    type: "survey",
+    type: "general",
   },
 ];
 
@@ -122,25 +63,16 @@ type Props = DrawerScreenProps<MainDrawerParamList, "dashboard"> & {
 };
 
 const DashboardScreen: React.FC<Props> = ({ navigation, route, onLogout }) => {
->>>>>>> feat: update project
   const { user } = useAuth();
-  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(
-    null
-  );
-<<<<<<< HEAD
-  const [notifications, setNotifications] =
-    useState<NotificationItem[]>(mockNotifications);
-  const [isLoading, setIsLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-=======
+  const [dashboardStats, setDashboardStats] =
+    useState<LocalDashboardStats | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
->>>>>>> feat: update project
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
   }, []);
-<<<<<<< HEAD
 
   const loadDashboardData = async () => {
     try {
@@ -194,42 +126,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation, route, onLogout }) => {
   if (isLoading) {
     return (
       <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>ICAN Dashboard</Text>
-        </View>
-=======
-
-  const loadDashboardData = async () => {
-    try {
-      setIsLoading(true);
-
-      // Load dashboard stats and notifications in parallel
-      const [statsResponse, notificationsResponse] = await Promise.all([
-        apiService.getDashboardStats(),
-        apiService.getNotifications({ limit: 5 }),
-      ]);
-
-      if (statsResponse.success && statsResponse.data) {
-        setDashboardStats(statsResponse.data);
-      }
-
-      if (notificationsResponse.success && notificationsResponse.data) {
-        setNotifications(notificationsResponse.data.data);
-      }
-    } catch (error) {
-      console.error("Error loading dashboard data:", error);
-      // Fallback to mock data
-      setNotifications(mockNotifications);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <SafeAreaView style={styles.safeArea}>
         <Header title="ICAN Dashboard" />
->>>>>>> feat: update project
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#3182ce" />
           <Text style={styles.loadingText}>Loading dashboard...</Text>
@@ -241,23 +138,9 @@ const DashboardScreen: React.FC<Props> = ({ navigation, route, onLogout }) => {
   if (!user) {
     return (
       <SafeAreaView style={styles.safeArea}>
-<<<<<<< HEAD
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>ICAN Dashboard</Text>
-        </View>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.errorText}>Unable to load user data</Text>
-          <TouchableOpacity
-            style={styles.retryButton}
-            onPress={loadDashboardData}
-          >
-            <Text style={styles.retryText}>Retry</Text>
-          </TouchableOpacity>
-=======
         <Header title="ICAN Dashboard" />
         <View style={styles.loadingContainer}>
           <Text style={styles.errorText}>Unable to load user data</Text>
->>>>>>> feat: update project
         </View>
       </SafeAreaView>
     );
@@ -265,6 +148,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation, route, onLogout }) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <Header title="ICAN Dashboard" />
       <ScrollView
         style={styles.container}
         showsVerticalScrollIndicator={false}
@@ -272,26 +156,15 @@ const DashboardScreen: React.FC<Props> = ({ navigation, route, onLogout }) => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>ICAN Dashboard</Text>
-        </View>
-
         {/* Welcome Section */}
         <View style={styles.welcomeSection}>
           <View style={styles.userInfo}>
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>
                 {user.name
-<<<<<<< HEAD
                   ?.split(" ")
                   .map((n) => n[0])
                   .join("") || "U"}
-=======
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")}
->>>>>>> feat: update project
               </Text>
             </View>
             <View style={styles.userDetails}>
@@ -309,12 +182,8 @@ const DashboardScreen: React.FC<Props> = ({ navigation, route, onLogout }) => {
           <View style={styles.statCard}>
             <Ionicons name="wallet" size={24} color="#3182ce" />
             <Text style={styles.statValue}>
-<<<<<<< HEAD
               ₦
               {(dashboardStats?.balance || user?.balance || 0).toLocaleString()}
-=======
-              ₦{user.balance.toLocaleString()}
->>>>>>> feat: update project
             </Text>
             <Text style={styles.statLabel}>Account Balance</Text>
           </View>
@@ -353,44 +222,28 @@ const DashboardScreen: React.FC<Props> = ({ navigation, route, onLogout }) => {
           <View style={styles.quickActions}>
             <TouchableOpacity
               style={styles.actionCard}
-<<<<<<< HEAD
-              onPress={() => navigation?.navigate("financial")}
-=======
               onPress={() => navigation.navigate("financial")}
->>>>>>> feat: update project
             >
               <Ionicons name="card" size={32} color="#3182ce" />
               <Text style={styles.actionText}>Pay Dues</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.actionCard}
-<<<<<<< HEAD
-              onPress={() => navigation?.navigate("cpd")}
-=======
               onPress={() => navigation.navigate("cpd")}
->>>>>>> feat: update project
             >
               <Ionicons name="book" size={32} color="#38a169" />
               <Text style={styles.actionText}>CPD Modules</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.actionCard}
-<<<<<<< HEAD
-              onPress={() => navigation?.navigate("events")}
-=======
               onPress={() => navigation.navigate("events")}
->>>>>>> feat: update project
             >
               <Ionicons name="calendar" size={32} color="#d69e2e" />
               <Text style={styles.actionText}>Events</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.actionCard}
-<<<<<<< HEAD
-              onPress={() => navigation?.navigate("voting")}
-=======
               onPress={() => navigation.navigate("voting")}
->>>>>>> feat: update project
             >
               <Ionicons name="checkbox" size={32} color="#9f7aea" />
               <Text style={styles.actionText}>Vote</Text>
@@ -423,9 +276,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation, route, onLogout }) => {
                 <Text style={styles.notificationMessage}>
                   {notification.message}
                 </Text>
-                <Text style={styles.notificationTime}>
-                  {new Date(notification.createdAt).toLocaleDateString()}
-                </Text>
+                <Text style={styles.notificationTime}>{notification.time}</Text>
               </View>
             </View>
           ))}
@@ -450,23 +301,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f7fafc",
-<<<<<<< HEAD
-  },
-  header: {
-    backgroundColor: "#3182ce",
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-    marginBottom: 20,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "white",
-    textAlign: "center",
-=======
->>>>>>> feat: update project
   },
   welcomeSection: {
     backgroundColor: "white",
@@ -632,19 +466,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#e53e3e",
     textAlign: "center",
-<<<<<<< HEAD
-    marginBottom: 20,
-  },
-  retryButton: {
-    backgroundColor: "#3182ce",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  retryText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "600",
   },
   emptyState: {
     alignItems: "center",
@@ -654,8 +475,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#999",
     marginTop: 10,
-=======
->>>>>>> feat: update project
   },
 });
 

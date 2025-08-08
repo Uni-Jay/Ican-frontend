@@ -1,25 +1,25 @@
-import React from 'react';
-import { View, StyleSheet, ViewStyle } from 'react-native';
-import { theme } from '../../styles/theme';
+import React from "react";
+import { View, StyleSheet, ViewStyle } from "react-native";
+import { theme } from "../../styles/theme";
 
 interface ContainerProps {
   children: React.ReactNode;
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
-  padding?: 'none' | 'sm' | 'md' | 'lg';
+  maxWidth?: "sm" | "md" | "lg" | "xl" | "full";
+  padding?: "none" | "sm" | "md" | "lg";
   center?: boolean;
   style?: ViewStyle;
 }
 
 const Container: React.FC<ContainerProps> = ({
   children,
-  maxWidth = 'lg',
-  padding = 'md',
+  maxWidth = "lg",
+  padding = "md",
   center = true,
   style,
 }) => {
   const getContainerStyle = (): ViewStyle => {
     const baseStyle: ViewStyle = {
-      width: '100%',
+      width: "100%",
     };
 
     // Max width styles
@@ -28,7 +28,7 @@ const Container: React.FC<ContainerProps> = ({
       md: { maxWidth: theme.layout.container.md },
       lg: { maxWidth: theme.layout.container.lg },
       xl: { maxWidth: theme.layout.container.xl },
-      full: { maxWidth: '100%' },
+      full: { maxWidth: "100%" },
     };
 
     // Padding styles
@@ -40,30 +40,30 @@ const Container: React.FC<ContainerProps> = ({
     };
 
     // Center styles
-    const centerStyle: ViewStyle = center ? {
-      marginHorizontal: 'auto',
-      alignSelf: 'center',
-    } : {};
+    const centerStyle: ViewStyle = center
+      ? {
+          marginHorizontal: "auto",
+          alignSelf: "center",
+        }
+      : {};
 
     // Web-specific responsive styles
-    const webStyles: ViewStyle = theme.layout.isWeb ? {
-      minHeight: '100vh',
-      ...centerStyle,
-    } : {};
+    const webStyles: ViewStyle = theme.layout.isWeb
+      ? {
+          minHeight: "100%" as any,
+          ...centerStyle,
+        }
+      : {};
 
     return {
       ...baseStyle,
       ...maxWidthStyles[maxWidth],
       ...paddingStyles[padding],
       ...webStyles,
-    };
+    } as ViewStyle;
   };
 
-  return (
-    <View style={[getContainerStyle(), style]}>
-      {children}
-    </View>
-  );
+  return <View style={[getContainerStyle(), style]}>{children}</View>;
 };
 
 export default Container;

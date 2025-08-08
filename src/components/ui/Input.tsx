@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   TextInput,
@@ -8,9 +8,9 @@ import {
   ViewStyle,
   TextStyle,
   TextInputProps,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { theme } from '../../styles/theme';
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { theme } from "../../styles/theme";
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -18,8 +18,8 @@ interface InputProps extends TextInputProps {
   leftIcon?: keyof typeof Ionicons.glyphMap;
   rightIcon?: keyof typeof Ionicons.glyphMap;
   onRightIconPress?: () => void;
-  variant?: 'default' | 'filled' | 'outlined';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: "default" | "filled" | "outlined";
+  size?: "sm" | "md" | "lg";
   containerStyle?: ViewStyle;
   inputStyle?: TextStyle;
   labelStyle?: TextStyle;
@@ -32,8 +32,8 @@ const Input: React.FC<InputProps> = ({
   leftIcon,
   rightIcon,
   onRightIconPress,
-  variant = 'default',
-  size = 'md',
+  variant = "default",
+  size = "md",
   containerStyle,
   inputStyle,
   labelStyle,
@@ -54,8 +54,8 @@ const Input: React.FC<InputProps> = ({
 
   const getInputContainerStyle = (): ViewStyle => {
     const baseStyle: ViewStyle = {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       borderRadius: theme.borderRadius.md,
       borderWidth: 1,
     };
@@ -80,27 +80,36 @@ const Input: React.FC<InputProps> = ({
     const variantStyles = {
       default: {
         backgroundColor: theme.colors.background.secondary,
-        borderColor: isFocused ? theme.colors.primary[500] : theme.colors.border.light,
+        borderColor: isFocused
+          ? theme.colors.primary[500]
+          : theme.colors.border.light,
       },
       filled: {
         backgroundColor: theme.colors.neutral[100],
-        borderColor: isFocused ? theme.colors.primary[500] : 'transparent',
+        borderColor: isFocused ? theme.colors.primary[500] : "transparent",
       },
       outlined: {
-        backgroundColor: 'transparent',
-        borderColor: isFocused ? theme.colors.primary[500] : theme.colors.border.medium,
+        backgroundColor: "transparent",
+        borderColor: isFocused
+          ? theme.colors.primary[500]
+          : theme.colors.border.medium,
       },
     };
 
-    const errorStyle: ViewStyle = error ? {
-      borderColor: theme.colors.error,
-      borderWidth: 2,
-    } : {};
+    const errorStyle: ViewStyle = error
+      ? {
+          borderColor: theme.colors.error,
+          borderWidth: 2,
+        }
+      : {};
 
-    const focusedStyle: ViewStyle = isFocused && !error ? {
-      borderWidth: 2,
-      ...theme.shadows.sm,
-    } : {};
+    const focusedStyle: ViewStyle =
+      isFocused && !error
+        ? {
+            borderWidth: 2,
+            ...theme.shadows.sm,
+          }
+        : {};
 
     return {
       ...baseStyle,
@@ -140,7 +149,7 @@ const Input: React.FC<InputProps> = ({
   const getLabelStyle = (): TextStyle => {
     const baseStyle: TextStyle = {
       fontSize: theme.typography.fontSize.sm,
-      fontWeight: theme.typography.fontWeight.medium,
+      fontWeight: theme.typography.fontWeight.medium as any,
       color: theme.colors.text.secondary,
       marginBottom: theme.spacing[2],
     };
@@ -176,12 +185,8 @@ const Input: React.FC<InputProps> = ({
 
   return (
     <View style={[getContainerStyle(), containerStyle]}>
-      {label && (
-        <Text style={[getLabelStyle(), labelStyle]}>
-          {label}
-        </Text>
-      )}
-      
+      {label && <Text style={[getLabelStyle(), labelStyle]}>{label}</Text>}
+
       <View style={getInputContainerStyle()}>
         {leftIcon && (
           <Ionicons
@@ -191,7 +196,7 @@ const Input: React.FC<InputProps> = ({
             style={{ marginRight: theme.spacing[3] }}
           />
         )}
-        
+
         <TextInput
           style={[getInputStyle(), inputStyle]}
           onFocus={() => setIsFocused(true)}
@@ -199,7 +204,7 @@ const Input: React.FC<InputProps> = ({
           placeholderTextColor={theme.colors.text.muted}
           {...textInputProps}
         />
-        
+
         {rightIcon && (
           <TouchableOpacity
             onPress={onRightIconPress}
@@ -213,12 +218,8 @@ const Input: React.FC<InputProps> = ({
           </TouchableOpacity>
         )}
       </View>
-      
-      {error && (
-        <Text style={[getErrorStyle(), errorStyle]}>
-          {error}
-        </Text>
-      )}
+
+      {error && <Text style={[getErrorStyle(), errorStyle]}>{error}</Text>}
     </View>
   );
 };

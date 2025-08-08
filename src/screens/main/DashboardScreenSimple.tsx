@@ -13,18 +13,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../../contexts/AuthContext";
 import apiService from "../../services/api";
-
-interface Notification {
-  _id: string;
-  title: string;
-  message: string;
-  type: string;
-  priority: string;
-  isRead: boolean;
-  createdAt: string;
-  actionUrl?: string;
-  actionText?: string;
-}
+import { Notification } from "../../types/api";
 
 interface Props {
   navigation?: any;

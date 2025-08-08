@@ -194,7 +194,7 @@ const MainNavigator: FC<MainNavigatorProps> = ({ onLogout }) => {
           {(props) => <EventsScreen {...props} onLogout={onLogout} />}
         </Drawer.Screen>
 
-        <Drawer.Screen
+        {/* <Drawer.Screen
           name="chat"
           options={{
             drawerIcon: ({ color, size }) => (
@@ -204,7 +204,7 @@ const MainNavigator: FC<MainNavigatorProps> = ({ onLogout }) => {
           }}
         >
           {(props) => <ChatScreen {...props} onLogout={onLogout} />}
-        </Drawer.Screen>
+        </Drawer.Screen> */}
 
         <Drawer.Screen
           name="voting"

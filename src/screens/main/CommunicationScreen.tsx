@@ -18,6 +18,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import { Archive, Bell, Check, CheckCheck, Filter, Forward, MessageCircle, MoreVertical, Paperclip, Plus, Reply, Search, Send, Smile, Star, Trash2, Users, X } from 'lucide-react-native';
+import { DrawerScreenProps } from '@react-navigation/drawer';
+import { MainDrawerParamList } from '../../navigations/MainNavigator';
 
 type User = {
   id: number;
@@ -68,7 +70,11 @@ type Announcement = {
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
-const CommunicationScreen: React.FC = () => {
+type Props = DrawerScreenProps<MainDrawerParamList, 'communication'> & {
+  onLogout: () => void;
+};
+
+const CommunicationScreen: React.FC<Props> = ({ navigation, route, onLogout }) => {
   // Tabs + search + compose states
   const [activeTab, setActiveTab] = useState<'messages' | 'notifications' | 'announcements'>('messages');
   const [searchQuery, setSearchQuery] = useState('');

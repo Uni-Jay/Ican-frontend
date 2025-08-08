@@ -10,9 +10,10 @@ import {
   Dimensions,
   KeyboardAvoidingView,
   Platform,
-  ScrollView
+  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as LocalAuthentication from 'expo-local-authentication'; // ✅ Biometric import
 
 const { width, height } = Dimensions.get('window');
 
@@ -28,24 +29,50 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, navigate }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleLogin = async () => {
-  if (!email || !password) {
-    Alert.alert('Error', 'Please fill in all fields');
-    return;
-  }
-
-  setIsLoading(true);
-
-  // Simulate API call
-  setTimeout(() => {
-    setIsLoading(false);
-    if (email === 'john.doe@ican.ng' && password === 'password123') {
-      onLogin();
-      // navigate('dashboard'); // This makes sense here
-    } else {
-      Alert.alert('Error', 'Invalid credentials');
+    if (!email || !password) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
     }
-  }, 2000);
-};
+
+    setIsLoading(true);
+
+    // Simulate API call
+    setTimeout(() => {
+      setIsLoading(false);
+      if (email === 'john.doe@ican.ng' && password === 'password123') {
+        onLogin();
+      } else {
+        Alert.alert('Error', 'Invalid credentials');
+      }
+    }, 2000);
+  };
+
+  const handleBiometricAuth = async () => {
+    try {
+      const hasHardware = await LocalAuthentication.hasHardwareAsync();
+      const supportedTypes = await LocalAuthentication.supportedAuthenticationTypesAsync();
+      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+
+      if (!hasHardware || supportedTypes.length === 0 || !isEnrolled) {
+        Alert.alert('Biometric not available', 'Your device does not support biometric authentication.');
+        return;
+      }
+
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: 'Login with Biometrics',
+        fallbackLabel: 'Enter password',
+      });
+
+      if (result.success) {
+        onLogin();
+        // You can replace this with token validation or secure credentials
+      } else {
+        Alert.alert('Authentication failed', 'Please try again or use your credentials.');
+      }
+    } catch (error) {
+      Alert.alert('Biometric Error', 'Something went wrong.');
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -54,7 +81,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, navigate }) => {
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-          {/* Header */}
           <View style={styles.header}>
             <View style={styles.logoContainer}>
               <View style={styles.logo}>
@@ -65,7 +91,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, navigate }) => {
             </View>
           </View>
 
-          {/* Login Form */}
           <View style={styles.formContainer}>
             <Text style={styles.welcomeText}>Welcome Back</Text>
             <Text style={styles.loginSubtext}>Sign in to continue to your account</Text>
@@ -99,7 +124,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, navigate }) => {
                   onPress={() => setShowPassword(!showPassword)}
                 >
                   <Ionicons
-                    name={showPassword ? "eye-outline" : "eye-off-outline"}
+                    name={showPassword ? 'eye-outline' : 'eye-off-outline'}
                     size={20}
                     color="#666"
                   />
@@ -130,7 +155,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, navigate }) => {
               <View style={styles.dividerLine} />
             </View>
 
-            <TouchableOpacity style={styles.biometricButton}>
+            <TouchableOpacity style={styles.biometricButton} onPress={handleBiometricAuth}>
               <Ionicons name="finger-print" size={24} color="#3182ce" />
               <Text style={styles.biometricText}>Use Biometric Login</Text>
             </TouchableOpacity>

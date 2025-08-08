@@ -1,18 +1,12 @@
 // src/navigations/DashboardTabs.tsx
-
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 
 import DashboardScreen from '../screens/main/DashboardScreen';
-import CommunicationScreen from '../screens/main/CommunicationScreen';
-import ChatScreen from '../screens/main/ChatScreen';
-import ProfileSecurityScreen from '../screens/main/ProfileSecurityScreen';
 
-// Define param list explicitly
 export type DashboardTabParamList = {
   dashboard: undefined;
-  profile: undefined;
 };
 
 interface DashboardTabsProps {
@@ -29,8 +23,8 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({ onLogout }) => {
         headerShown: false,
         tabBarIcon: ({ color, size }) => {
           let iconName: React.ComponentProps<typeof Ionicons>['name'] = 'home-outline';
-          if (route.name === 'profile') {
-            iconName = 'chatbubble-ellipses-outline';
+          if (route.name === 'dashboard') {
+            iconName = 'home-outline';
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
@@ -44,13 +38,6 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({ onLogout }) => {
       >
         {(props) => <DashboardScreen {...props} onLogout={onLogout} />}
       </Tab.Screen>
-
-      <Tab.Screen
-        name="profile"
-        options={{ title: 'Profile' }}
-        >
-            {(props) => <ProfileSecurityScreen {...props} onLogout={onLogout} />}
-        </Tab.Screen>
     </Tab.Navigator>
   );
 };

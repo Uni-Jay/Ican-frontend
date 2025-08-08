@@ -11,11 +11,18 @@ import {
   TextInput,
   Switch,
   Image,
+  Animated,
+  ActionSheetIOS,
+  Button,
+  Platform,
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../../components/Header';
 import { MainDrawerParamList } from '../../navigations/MainNavigator';
 import { DrawerScreenProps } from '@react-navigation/drawer';
+
 
 interface UserProfile {
   id: string;
@@ -29,6 +36,7 @@ interface UserProfile {
   joinDate: string;
   avatar?: string;
   bio: string;
+  profileImage?: string | null; // Fixed: Allow null value
 }
 
 interface SecuritySettings {
@@ -52,6 +60,7 @@ const mockProfile: UserProfile = {
   location: 'Lagos, Nigeria',
   joinDate: '2015-06-15',
   bio: 'Experienced chartered accountant with expertise in audit, tax, and financial advisory services.',
+  profileImage: null, // Added this field
 };
 
 const mockSecuritySettings: SecuritySettings = {
@@ -64,11 +73,11 @@ const mockSecuritySettings: SecuritySettings = {
   dataSharing: false,
 };
 
-type Props = DrawerScreenProps<MainDrawerParamList, 'profile'>  & {
+type Props = DrawerScreenProps<MainDrawerParamList, 'profile'> & {
   onLogout: () => void;
-};;
+};
 
-const ProfileSecurityScreen: React.FC<Props> = ({ navigation, route, onLogout }) => {
+const ProfileSecurityScreen: React.FC<Props> = ({ navigation, route, onLogout,  }) => {
   const [selectedTab, setSelectedTab] = useState<'profile' | 'security' | 'privacy'>('profile');
   const [profile, setProfile] = useState<UserProfile>(mockProfile);
   const [securitySettings, setSecuritySettings] = useState<SecuritySettings>(mockSecuritySettings);
@@ -82,7 +91,7 @@ const ProfileSecurityScreen: React.FC<Props> = ({ navigation, route, onLogout })
     confirmPassword: '',
   });
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
@@ -91,13 +100,13 @@ const ProfileSecurityScreen: React.FC<Props> = ({ navigation, route, onLogout })
     });
   };
 
-  const openEditModal = (field: keyof UserProfile) => {
+  const openEditModal = (field: keyof UserProfile): void => {
     setEditField(field);
     setEditValue(profile[field] as string);
     setEditModalVisible(true);
   };
 
-  const saveEdit = () => {
+  const saveEdit = (): void => {
     if (editField && editValue.trim()) {
       setProfile(prev => ({
         ...prev,
@@ -108,13 +117,13 @@ const ProfileSecurityScreen: React.FC<Props> = ({ navigation, route, onLogout })
     }
   };
 
-  const closeEditModal = () => {
+  const closeEditModal = (): void => {
     setEditModalVisible(false);
     setEditField(null);
     setEditValue('');
   };
 
-  const changePassword = () => {
+  const changePassword = (): void => {
     if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
       Alert.alert('Error', 'Please fill in all password fields.');
       return;
@@ -139,14 +148,14 @@ const ProfileSecurityScreen: React.FC<Props> = ({ navigation, route, onLogout })
     setChangePasswordVisible(false);
   };
 
-  const toggleSecuritySetting = (setting: keyof SecuritySettings) => {
+  const toggleSecuritySetting = (setting: keyof SecuritySettings): void => {
     setSecuritySettings(prev => ({
       ...prev,
       [setting]: !prev[setting],
     }));
   };
 
-  const deleteAccount = () => {
+  const deleteAccount = (): void => {
     Alert.alert(
       'Delete Account',
       'Are you sure you want to delete your account? This action cannot be undone.',
@@ -163,22 +172,239 @@ const ProfileSecurityScreen: React.FC<Props> = ({ navigation, route, onLogout })
     );
   };
 
-  const exportData = () => {
+  const exportData = (): void => {
     Alert.alert('Export Data', 'Your data export has been initiated. You will receive an email with your data within 24 hours.');
+  };
+
+  const [profileImage, setProfileImage] = useState<string | null>(profile.profileImage || null);
+  const [imageLoading, setImageLoading] = useState<boolean>(false);
+  const scaleAnim = new Animated.Value(1);
+
+  // Request permissions for camera and gallery
+  const requestPermissions = async (): Promise<boolean> => {
+    const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
+    const { status: galleryStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    
+    if (cameraStatus !== 'granted' || galleryStatus !== 'granted') {
+      Alert.alert(
+        'Permissions Required',
+        'Please grant camera and gallery permissions to change your profile photo.',
+        [{ text: 'OK' }]
+      );
+      return false;
+    }
+    return true;
+  };
+
+  // Process and compress image
+  const processImage = async (imageUri: string): Promise<string | null> => {
+    try {
+      setImageLoading(true);
+      
+      // Manipulate image - resize and compress
+      const manipResult = await ImageManipulator.manipulateAsync(
+        imageUri,
+        [
+          { resize: { width: 300, height: 300 } }, // Resize to 300x300
+        ],
+        {
+          compress: 0.8, // 80% quality
+          format: ImageManipulator.SaveFormat.JPEG,
+        }
+      );
+
+      return manipResult.uri;
+    } catch (error) {
+      console.error('Error processing image:', error);
+      Alert.alert('Error', 'Failed to process the image. Please try again.');
+      return null;
+    } finally {
+      setImageLoading(false);
+    }
+  };
+
+  // Take photo from camera
+  const takePhoto = async (): Promise<void> => {
+    try {
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.9,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        const processedImageUri = await processImage(result.assets[0].uri);
+        if (processedImageUri) {
+          setProfileImage(processedImageUri);
+          // Update profile state
+          setProfile(prev => ({ ...prev, profileImage: processedImageUri }));
+        }
+      }
+    } catch (error) {
+      console.error('Error taking photo:', error);
+      Alert.alert('Error', 'Failed to take photo. Please try again.');
+    }
+  };
+
+  // Pick image from gallery
+  const pickImage = async (): Promise<void> => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.9,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        const processedImageUri = await processImage(result.assets[0].uri);
+        if (processedImageUri) {
+          setProfileImage(processedImageUri);
+          // Update profile state
+          setProfile(prev => ({ ...prev, profileImage: processedImageUri }));
+        }
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'Failed to select image. Please try again.');
+    }
+  };
+
+  // Remove profile photo
+  const removePhoto = (): void => {
+    Alert.alert(
+      'Remove Photo',
+      'Are you sure you want to remove your profile photo?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Remove',
+          style: 'destructive',
+          onPress: () => {
+            setProfileImage(null);
+            setProfile(prev => ({ ...prev, profileImage: null }));
+          },
+        },
+      ]
+    );
+  };
+
+  // Show photo options
+  const showPhotoOptions = async (): Promise<void> => {
+    const hasPermissions = await requestPermissions();
+    if (!hasPermissions) return;
+
+    const options = ['Take Photo', 'Choose from Gallery'];
+    if (profileImage) {
+      options.push('Remove Photo');
+    }
+    options.push('Cancel');
+
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options,
+          cancelButtonIndex: options.length - 1,
+          destructiveButtonIndex: profileImage ? 2 : undefined,
+          title: 'Change Profile Photo',
+        },
+        (buttonIndex: number) => {
+          if (buttonIndex === 0) {
+            takePhoto();
+          } else if (buttonIndex === 1) {
+            pickImage();
+          } else if (buttonIndex === 2 && profileImage) {
+            removePhoto();
+          }
+        }
+      );
+    } else {
+      // Android Alert - Fixed button types
+      Alert.alert(
+        'Change Profile Photo', 
+        'Choose an option:', 
+        [
+          { text: 'Take Photo', onPress: () => takePhoto() },
+          { text: 'Choose from Gallery', onPress: () => pickImage() },
+          ...(profileImage ? [{ text: 'Remove Photo', onPress: () => removePhoto(), style: 'destructive' as const }] : []),
+          { text: 'Cancel', style: 'cancel' as const },
+        ]
+      );
+    }
+  };
+
+  // Animation for button press
+  const animatePress = (): void => {
+    Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 0.95,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const handleChangePhoto = (): void => {
+    animatePress();
+    showPhotoOptions();
   };
 
   const renderProfileTab = () => (
     <View style={styles.tabContent}>
-      {/* Profile Picture */}
+      {/* Profile Picture Section */}
       <View style={styles.profilePictureSection}>
-        <View style={styles.profilePicture}>
-          <Text style={styles.profileInitials}>
-            {profile.name.split(' ').map(n => n[0]).join('')}
-          </Text>
+        <View style={styles.profilePictureContainer}>
+          <View style={styles.profilePicture}>
+            {profileImage ? (
+              <Image source={{ uri: profileImage }} style={styles.profileImage} />
+            ) : (
+              <Text style={styles.profileInitials}>
+                {profile.name.split(' ').map(n => n[0]).join('')}
+              </Text>
+            )}
+            {imageLoading && (
+              <View style={styles.loadingOverlay}>
+                <View style={styles.loadingSpinner} />
+              </View>
+            )}
+          </View>
+          
+          {/* Camera icon overlay */}
+          <TouchableOpacity
+            style={styles.cameraIconContainer}
+            onPress={handleChangePhoto}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="camera" size={16} color="#fff" />
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.changePhotoButton}>
-          <Text style={styles.changePhotoText}>Change Photo</Text>
-        </TouchableOpacity>
+
+        <Animated.View style={[{ transform: [{ scale: scaleAnim }] }]}>
+          <TouchableOpacity
+            style={styles.changePhotoButton}
+            onPress={handleChangePhoto}
+            activeOpacity={0.8}
+            disabled={imageLoading}
+          >
+            <View style={styles.buttonContent}>
+              <Ionicons 
+                name="camera-outline" 
+                size={18} 
+                color="#007AFF" 
+                style={styles.buttonIcon}
+              />
+              <Text style={styles.changePhotoText}>
+                {imageLoading ? 'Processing...' : 'Change Photo'}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </Animated.View>
       </View>
 
       {/* Profile Information */}
@@ -294,6 +520,8 @@ const ProfileSecurityScreen: React.FC<Props> = ({ navigation, route, onLogout })
       </View>
     </View>
   );
+
+
 
   const renderSecurityTab = () => (
     <View style={styles.tabContent}>
@@ -906,6 +1134,178 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     maxHeight: '70%',
   },
+
+  // tabContent: {
+  //   flex: 1,
+  //   padding: 20,
+  //   backgroundColor: '#f8f9fa',
+  // },
+  // profilePictureSection: {
+  //   alignItems: 'center',
+  //   marginBottom: 30,
+  //   paddingVertical: 20,
+  // },
+  profilePictureContainer: {
+    position: 'relative',
+    marginBottom: 16,
+  },
+  // profilePicture: {
+  //   width: 120,
+  //   height: 120,
+  //   borderRadius: 60,
+  //   backgroundColor: '#007AFF',
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  //   shadowColor: '#000',
+  //   shadowOffset: { width: 0, height: 4 },
+  //   shadowOpacity: 0.15,
+  //   shadowRadius: 8,
+  //   elevation: 8,
+  //   borderWidth: 4,
+  //   borderColor: '#fff',
+  // },
+  profileImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 56,
+  },
+  // profileInitials: {
+  //   fontSize: 36,
+  //   fontWeight: '600',
+  //   color: '#fff',
+  //   letterSpacing: 1,
+  // },
+  cameraIconContainer: {
+    position: 'absolute',
+    bottom: 4,
+    right: 4,
+    backgroundColor: '#007AFF',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  // changePhotoButton: {
+  //   backgroundColor: '#fff',
+  //   paddingHorizontal: 24,
+  //   paddingVertical: 12,
+  //   borderRadius: 25,
+  //   shadowColor: '#007AFF',
+  //   shadowOffset: { width: 0, height: 2 },
+  //   shadowOpacity: 0.1,
+  //   shadowRadius: 8,
+  //   elevation: 3,
+  //   borderWidth: 1.5,
+  //   borderColor: '#007AFF',
+  //   minWidth: 140,
+  // },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonIcon: {
+    marginRight: 6,
+  },
+  // changePhotoText: {
+  //   color: '#007AFF',
+  //   fontSize: 16,
+  //   fontWeight: '600',
+  //   letterSpacing: 0.5,
+  // },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 56,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingSpinner: {
+    width: 24,
+    height: 24,
+    borderWidth: 2,
+    borderColor: '#fff',
+    borderTopColor: 'transparent',
+    borderRadius: 12,
+    // Add rotation animation here if needed
+  },
+  // section: {
+  //   backgroundColor: '#fff',
+  //   borderRadius: 16,
+  //   marginBottom: 20,
+  //   padding: 20,
+  //   shadowColor: '#000',
+  //   shadowOffset: { width: 0, height: 2 },
+  //   shadowOpacity: 0.1,
+  //   shadowRadius: 8,
+  //   elevation: 2,
+  // },
+  // sectionTitle: {
+  //   fontSize: 18,
+  //   fontWeight: '700',
+  //   color: '#1a1a1a',
+  //   marginBottom: 16,
+  //   letterSpacing: 0.3,
+  // },
+  // profileItem: {
+  //   flexDirection: 'row',
+  //   alignItems: 'center',
+  //   justifyContent: 'space-between',
+  //   paddingVertical: 12,
+  //   borderBottomWidth: 1,
+  //   borderBottomColor: '#f0f0f0',
+  // },
+  // profileItemContent: {
+  //   flexDirection: 'row',
+  //   alignItems: 'center',
+  //   flex: 1,
+  // },
+  // profileItemText: {
+  //   marginLeft: 12,
+  //   flex: 1,
+  // },
+  // profileLabel: {
+  //   fontSize: 14,
+  //   color: '#666',
+  //   marginBottom: 2,
+  //   fontWeight: '500',
+  // },
+  // profileValue: {
+  //   fontSize: 16,
+  //   color: '#1a1a1a',
+  //   fontWeight: '600',
+  // },
+  // bioContainer: {
+  //   backgroundColor: '#f8f9fa',
+  //   padding: 16,
+  //   borderRadius: 12,
+  //   borderWidth: 1,
+  //   borderColor: '#e9ecef',
+  //   position: 'relative',
+  // },
+  // bioText: {
+  //   fontSize: 16,
+  //   color: '#333',
+  //   lineHeight: 24,
+  //   paddingRight: 24,
+  // },
+  // bioEditIcon: {
+  //   position: 'absolute',
+  //   top: 12,
+  //   right: 12,
+  // },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',

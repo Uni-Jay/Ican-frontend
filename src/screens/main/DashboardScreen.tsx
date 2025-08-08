@@ -13,7 +13,6 @@ import Header from '../../components/Header';
 import { DrawerScreenProps } from '@react-navigation/drawer';
 import { MainDrawerParamList } from '../../navigations/MainNavigator';
 
-
 const { width } = Dimensions.get('window');
 
 type User = {
@@ -52,16 +51,38 @@ const mockNotifications: Notification[] = [
   { id: 3, title: 'New Survey Available', message: 'Professional Development Needs Assessment', time: '3 days ago', type: 'survey' },
 ];
 
-type Props = DrawerScreenProps<MainDrawerParamList, 'dashboard'>& {
-  onLogout: () => void;};
+type Props = DrawerScreenProps<MainDrawerParamList, 'dashboard'> & {
+  onLogout: () => void;
+};
 
-const DashboardScreen: React.FC<Props> = ({ navigation,route, onLogout }) => {
+const DashboardScreen: React.FC<Props> = ({ navigation, route, onLogout }) => {
   const [user] = useState<User>(mockUser);
+  const [unreadCount] = useState<number>(3); // You can manage this state based on actual unread notifications
+
+  const handleNotificationPress = () => {
+    navigation.navigate('notifications');
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        {/* <Header title="ICAN Dashboard" /> */}
+        {/* Custom Header with Notification Icon */}
+        <View style={styles.customHeader}>
+          {/* <Text style={styles.headerTitle}>ICAN Dashboard</Text> */}
+          {/* <TouchableOpacity 
+            style={styles.notificationButton} 
+            onPress={handleNotificationPress}
+          >
+            <Ionicons name="notifications" size={24} color="#3182ce" />
+            {unreadCount > 0 && (
+              <View style={styles.notificationBadge}>
+                <Text style={styles.badgeText}>
+                  {unreadCount > 9 ? '9+' : unreadCount.toString()}
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity> */}
+        </View>
 
         {/* Welcome Section */}
         <View style={styles.welcomeSection}>
@@ -121,9 +142,18 @@ const DashboardScreen: React.FC<Props> = ({ navigation,route, onLogout }) => {
 
         {/* Recent Notifications */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recent Updates</Text>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Recent Updates</Text>
+            <TouchableOpacity onPress={handleNotificationPress}>
+              <Text style={styles.viewAllText}>View All</Text>
+            </TouchableOpacity>
+          </View>
           {mockNotifications.slice(0, 3).map(notification => (
-            <View key={notification.id} style={styles.notificationCard}>
+            <TouchableOpacity 
+              key={notification.id} 
+              style={styles.notificationCard}
+              onPress={handleNotificationPress}
+            >
               <View style={styles.notificationIcon}>
                 <Ionicons
                   name={
@@ -142,7 +172,8 @@ const DashboardScreen: React.FC<Props> = ({ navigation,route, onLogout }) => {
                 <Text style={styles.notificationMessage}>{notification.message}</Text>
                 <Text style={styles.notificationTime}>{notification.time}</Text>
               </View>
-            </View>
+              <Ionicons name="chevron-forward" size={16} color="#ccc" />
+            </TouchableOpacity>
           ))}
         </View>
       </ScrollView>
@@ -158,6 +189,45 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f7fafc',
+  },
+  customHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: 'white',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1a202c',
+  },
+  notificationButton: {
+    position: 'relative',
+    padding: 8,
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    backgroundColor: '#e53e3e',
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+  },
+  badgeText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   welcomeSection: {
     backgroundColor: 'white',
@@ -238,11 +308,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 25,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#1a202c',
-    marginBottom: 15,
+  },
+  viewAllText: {
+    fontSize: 14,
+    color: '#3182ce',
+    fontWeight: '600',
   },
   quickActions: {
     flexDirection: 'row',
@@ -275,6 +355,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 10,
     flexDirection: 'row',
+    alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
